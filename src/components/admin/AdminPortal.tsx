@@ -37,6 +37,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   onShowToast,
 }) => {
   const [activeSection, setActiveSection] = useState<AdminSection>('dashboard');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [dbStatus, setDbStatus] = useState<any>(null);
 
@@ -322,6 +323,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       {/* Top Admin Header Bar */}
       <header className="h-16 bg-[#2B2D2F] text-white px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-md border-b border-[#3D4043]">
         <div className="flex items-center gap-3">
+          {/* Mobile hamburger toggle (min 44px touch target) */}
+          <button
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            className="md:hidden p-2 rounded-lg text-white hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
+            aria-label="Toggle admin navigation"
+          >
+            <span className="material-symbols-outlined text-[24px]">
+              {mobileNavOpen ? 'close' : 'menu'}
+            </span>
+          </button>
+
           <GluckGifyLogo size="icon-only" glow={true} className="w-8 h-8" />
           <div className="flex items-center gap-2">
             <span className="font-serif text-[17px] font-semibold tracking-tight text-white">
@@ -333,13 +345,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={onReturnToStorefront}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-[#4CAF50] text-white text-[12.5px] font-medium transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-[#4CAF50] text-white text-[12.5px] font-medium transition-all cursor-pointer shadow-2xs min-h-[38px]"
           >
             <span className="material-symbols-outlined text-[16px]">storefront</span>
             <span className="hidden sm:inline">View Public Storefront</span>
+            <span className="sm:hidden">Store</span>
           </button>
 
           <div className="h-5 w-px bg-white/20" />
@@ -355,7 +368,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             </div>
             <button
               onClick={onLogout}
-              className="p-1.5 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer min-w-[40px] min-h-[40px] flex items-center justify-center"
               title="Sign Out"
             >
               <span className="material-symbols-outlined text-[20px]">logout</span>
@@ -364,10 +377,116 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         </div>
       </header>
 
+      {/* Mobile Drawer Backdrop & Menu for Small Screens */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-40 md:hidden flex">
+          <div
+            className="fixed inset-0 bg-[#2B2D2F]/60 backdrop-blur-xs"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <div className="relative w-72 max-w-[85vw] bg-white h-full shadow-2xl p-5 overflow-y-auto flex flex-col justify-between z-50">
+            <nav className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8D8]">
+                <div className="flex items-center gap-2">
+                  <GluckGifyLogo size="icon-only" className="w-6 h-6" />
+                  <span className="font-bold text-sm text-[#2B2D2F]">Admin Menu</span>
+                </div>
+                <button
+                  onClick={() => setMobileNavOpen(false)}
+                  className="p-1 rounded-full text-[#7A8276] hover:bg-[#F3F7F2]"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+
+              {/* Group 1: GLÜCK GIFY Studio & Bespoke Suite */}
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#4CAF50] px-3 mb-2 flex items-center gap-1.5">
+                  <SparkleStarIcon size={12} color="#4CAF50" />
+                  <span>Gify Studio &amp; Brand</span>
+                </div>
+                <div className="space-y-1">
+                  {[
+                    { id: 'dashboard', label: 'Overview Dashboard', icon: 'dashboard' },
+                    { id: 'studio-assets', label: 'Gify Assets Studio', icon: 'local_florist' },
+                    { id: 'studio-accessories', label: 'Cute Accessories', icon: 'shopping_bag' },
+                    { id: 'custom-requests', label: 'Custom Maker Requests', icon: 'palette' },
+                    { id: 'brand-settings', label: 'Brand & Logo Settings', icon: 'settings_suggest' },
+                  ].map((item) => {
+                    const isActive = activeSection === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveSection(item.id as AdminSection);
+                          setMobileNavOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-semibold text-left transition-all cursor-pointer min-h-[44px] ${
+                          isActive
+                            ? 'bg-[#4CAF50] text-white shadow-xs'
+                            : 'text-[#4A5568] hover:bg-[#FAF9F6] hover:text-[#2B2D2F]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Group 2: E-Commerce & Inventory Management */}
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[#7A8276] px-3 mb-2">
+                  Storefront &amp; Inventory
+                </div>
+                <div className="space-y-1">
+                  {[
+                    { id: 'products', label: 'Products & Crafts', icon: 'inventory_2' },
+                    { id: 'orders', label: 'Client Orders', icon: 'local_shipping' },
+                    { id: 'inventory', label: 'Stock & Movements', icon: 'warehouse' },
+                    { id: 'categories', label: 'Categories & Occasions', icon: 'category' },
+                    { id: 'customers', label: 'Customer Accounts', icon: 'groups' },
+                    { id: 'coupons', label: 'Coupons & Promos', icon: 'sell' },
+                    { id: 'audit', label: 'Security & Audit Logs', icon: 'history_edu' },
+                  ].map((item) => {
+                    const isActive = activeSection === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveSection(item.id as AdminSection);
+                          setMobileNavOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-[13px] font-semibold text-left transition-all cursor-pointer min-h-[44px] ${
+                          isActive
+                            ? 'bg-[#4CAF50] text-white shadow-xs'
+                            : 'text-[#4A5568] hover:bg-[#FAF9F6] hover:text-[#2B2D2F]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                        <span>{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </nav>
+
+            <div className="pt-4 border-t border-[#E2E8D8] text-[11px] text-[#7A8276]">
+              <div className="flex items-center gap-1.5 font-medium text-[#2D6A4F]">
+                <span className="w-2 h-2 rounded-full bg-[#4CAF50] animate-pulse" />
+                <span>Persistent Database Active</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Admin Layout: Sidebar + Content */}
       <div className="flex-1 flex flex-col md:flex-row">
-        {/* Left Sidebar */}
-        <aside className="w-full md:w-64 bg-white border-r border-[#E2E8D8] p-4 sm:p-5 flex flex-col justify-between shrink-0 shadow-2xs">
+        {/* Desktop & Tablet Sidebar */}
+        <aside className="hidden md:flex md:w-60 lg:w-64 bg-white border-r border-[#E2E8D8] p-4 sm:p-5 flex-col justify-between shrink-0 shadow-2xs">
           <nav className="space-y-4">
             {/* Group 1: GLÜCK GIFY Studio & Bespoke Suite */}
             <div>

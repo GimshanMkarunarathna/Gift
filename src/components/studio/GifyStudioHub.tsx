@@ -386,8 +386,8 @@ export const GifyStudioHub: React.FC<GifyStudioHubProps> = ({
                 />
               </div>
 
-              {/* Asset List Grid */}
-              <div className="mt-3 space-y-2 overflow-y-auto max-h-[560px] pr-1">
+              {/* Asset List Grid (Swipeable on mobile/tablet, vertical column on desktop) */}
+              <div className="mt-3 flex flex-row overflow-x-auto gap-2.5 pb-2 lg:flex-col lg:space-y-2 lg:overflow-y-auto lg:max-h-[560px] lg:pb-0 pr-1 no-scrollbar">
                 {filteredAssets.map((asset) => {
                   const isSelected = selectedAsset === asset.id;
                   return (
@@ -397,7 +397,7 @@ export const GifyStudioHub: React.FC<GifyStudioHubProps> = ({
                         setSelectedAsset(asset.id);
                         onShowToast(`Selected "${asset.name}" for Studio Canvas preview`);
                       }}
-                      className={`w-full text-left p-2.5 rounded-xl border transition-all flex items-center justify-between gap-3 group cursor-pointer ${
+                      className={`min-w-[190px] lg:min-w-0 w-full text-left p-2.5 rounded-xl border transition-all flex items-center justify-between gap-3 group cursor-pointer shrink-0 min-h-[44px] ${
                         isSelected
                           ? 'border-[#4CAF50] bg-[#F1F8F3] shadow-xs'
                           : 'border-[#EEF2EB] hover:border-[#D0DDC9] hover:bg-[#FAF9F6]'
@@ -414,7 +414,7 @@ export const GifyStudioHub: React.FC<GifyStudioHubProps> = ({
                           {asset.previewEmoji}
                         </div>
                         <div>
-                          <div className="text-[13px] font-bold text-[#2B2D2F] group-hover:text-[#1F2421]">
+                          <div className="text-[13px] font-bold text-[#2B2D2F] group-hover:text-[#1F2421] truncate max-w-[110px] sm:max-w-none">
                             {asset.name}
                           </div>
                           <div className="text-[11px] text-[#71806F] flex items-center gap-1.5 mt-0.5">

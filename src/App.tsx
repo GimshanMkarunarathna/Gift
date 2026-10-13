@@ -27,6 +27,7 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { Toast } from './components/Toast';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { AdminLogin } from './components/admin/AdminLogin';
+import { ClientAuthModal } from './components/ClientAuthModal';
 import { AnimatedLoadingScreen } from './components/brand/AnimatedLoadingScreen';
 import { GifyStudioHub } from './components/studio/GifyStudioHub';
 
@@ -39,6 +40,8 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdminPortalActive, setIsAdminPortalActive] = useState<boolean>(false);
   const [isAdminLoginModalOpen, setIsAdminLoginModalOpen] = useState<boolean>(false);
+  const [isClientAuthModalOpen, setIsClientAuthModalOpen] = useState<boolean>(false);
+  const [clientAuthInitialMode, setClientAuthInitialMode] = useState<'signin' | 'signup'>('signin');
 
   // Live Database Products State
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -119,9 +122,16 @@ export default function App() {
       const res = await api.auth.getMe();
       if (res.user) {
         setCurrentUser(res.user);
+        return;
       }
     } catch {
       // Offline / guest mode
+    }
+    const savedClient = localStorage.getItem('giftora_client_user');
+    if (savedClient) {
+      try {
+        setCurrentUser(JSON.parse(savedClient));
+      } catch {}
     }
   };
 
@@ -338,9 +348,10 @@ export default function App() {
     try {
       await api.auth.logout();
     } catch {}
+    localStorage.removeItem('giftora_client_user');
     setCurrentUser(null);
     setIsAdminPortalActive(false);
-    showToast('Signed out of Administrator Portal.');
+    showToast('You have been signed out successfully.');
   };
 
   const totalCartCount = cartItems.reduce((acc, i) => acc + i.quantity, 0);
@@ -373,6 +384,7 @@ export default function App() {
       <Header
         cartCount={totalCartCount}
         wishlistCount={wishlistIds.length}
+        currentUser={currentUser}
         onOpenCart={() => setIsCartOpen(true)}
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenSearch={() => setIsSearchOpen(true)}
@@ -380,6 +392,11 @@ export default function App() {
         onOpenConcierge={() => setIsConciergeOpen(true)}
         onOpenAccount={() => setIsAccountOpen(true)}
         onOpenAdmin={handleOpenAdmin}
+        onOpenAuthModal={(mode) => {
+          setClientAuthInitialMode(mode || 'signin');
+          setIsClientAuthModalOpen(true);
+        }}
+        onLogout={handleLogout}
         isAdminLoggedIn={currentUser?.role === 'admin'}
         onOpenStudio={() => setIsStudioActive((prev) => !prev)}
         onOpenLoadingDemo={() => setIsLoadingScreenOpen(true)}
@@ -606,10 +623,32 @@ export default function App() {
       <AccountModal
         isOpen={isAccountOpen}
         onClose={() => setIsAccountOpen(false)}
+        currentUser={currentUser}
+        onLogout={handleLogout}
         onOpenTrackOrder={() => {
           setIsAccountOpen(false);
           setIsTrackOrderOpen(true);
         }}
+        onOpenStudio={() => {
+          setIsAccountOpen(false);
+          setIsStudioActive(true);
+        }}
+        onOpenAuthModal={() => {
+          setIsAccountOpen(false);
+          setIsClientAuthModalOpen(true);
+        }}
+      />
+
+      {/* Client Sign In & Register Modal */}
+      <ClientAuthModal
+        isOpen={isClientAuthModalOpen}
+        onClose={() => setIsClientAuthModalOpen(false)}
+        onLoginSuccess={(user) => {
+          setCurrentUser(user);
+          localStorage.setItem('giftora_client_user', JSON.stringify(user));
+        }}
+        onShowToast={showToast}
+        initialMode={clientAuthInitialMode}
       />
 
       {/* Checkout Modal */}

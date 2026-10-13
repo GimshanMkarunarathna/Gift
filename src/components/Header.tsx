@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GluckGifyLogo } from './brand/GluckGifyLogo';
 import { LilyFlowerIcon, SparkleStarIcon } from './brand/BrandIcons';
 import { USER_AVATAR } from '../data/mockData';
+import { User } from '../services/api';
 
 interface HeaderProps {
   cartCount: number;
   wishlistCount: number;
+  currentUser: User | null;
   onOpenCart: () => void;
   onOpenWishlist: () => void;
   onOpenSearch: () => void;
@@ -13,6 +15,8 @@ interface HeaderProps {
   onOpenConcierge: () => void;
   onOpenAccount: () => void;
   onOpenAdmin: () => void;
+  onOpenAuthModal: (mode?: 'signin' | 'signup') => void;
+  onLogout: () => void;
   isAdminLoggedIn?: boolean;
   onSelectCategory: (category: string) => void;
   currentCategory: string;
@@ -25,6 +29,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   cartCount,
   wishlistCount,
+  currentUser,
   onOpenCart,
   onOpenWishlist,
   onOpenSearch,
@@ -32,6 +37,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenConcierge,
   onOpenAccount,
   onOpenAdmin,
+  onOpenAuthModal,
+  onLogout,
   isAdminLoggedIn,
   onSelectCategory,
   currentCategory,
@@ -41,6 +48,23 @@ export const Header: React.FC<HeaderProps> = ({
   announcementText,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setUserDropdownOpen(false);
+      }
+    };
+    if (userDropdownOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [userDropdownOpen]);
 
   const navLinks = [
     { label: 'Shop', id: 'all' },
@@ -52,10 +76,13 @@ export const Header: React.FC<HeaderProps> = ({
     { label: 'Our Story', id: 'our-story' },
   ];
 
+  const userAvatar = currentUser?.avatarUrl || USER_AVATAR;
+  const userName = currentUser?.name || 'Guest Gifter';
+
   return (
     <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[#fff8f7]/95 backdrop-blur-md shadow-[0_1px_8px_rgba(41,32,31,0.04)] border-b border-[#dac0c4]/30">
       {/* Top Banner Bar */}
-      <div className="w-full bg-[#F3F7F2] px-6 lg:px-10 py-1.5 hidden md:block border-b border-[#DDE5DA]">
+      <div className="w-full bg-[#F3F7F2] px-4 sm:px-6 lg:px-10 py-1.5 hidden md:block border-b border-[#DDE5DA]">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-[11px] font-bold tracking-[0.08em] text-[#3E4A3D]">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[#4CAF50] text-[15px]">eco</span>
@@ -63,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 text-[#2D6A4F] font-bold">
-            <SparkleStarIcon size={14} accentColor="#E9C46A" />
+            <SparkleStarIcon size={14} color="#E9C46A" />
             <span>Use code FIRSTJOY for 10% off your first cute gift</span>
           </div>
 
@@ -120,7 +147,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={() => {
               if (onOpenStudio && isStudioActive) {
-                // If studio is open, toggle back to storefront
+                onOpenStudio();
               }
               onSelectCategory('all');
               window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -165,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
                 key={link.id}
                 onClick={() => {
                   if (isStudioActive && onOpenStudio) {
-                    onOpenStudio(); // Close studio and return to store
+                    onOpenStudio();
                   }
                   if (link.id === 'occasions') {
                     const el = document.getElementById('milestones-section');
@@ -202,7 +229,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Search Trigger */}
           <button
             onClick={onOpenSearch}
-            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#f5e4e2] text-[#544245] hover:text-[#221a19] hover:bg-[#f0dfdd] transition-all cursor-pointer"
+            className="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-full bg-[#f5e4e2] text-[#544245] hover:text-[#221a19] hover:bg-[#f0dfdd] transition-all cursor-pointer min-h-[44px]"
             type="button"
             title="Search gifts (⌘K)"
           >
@@ -213,62 +240,145 @@ export const Header: React.FC<HeaderProps> = ({
             </kbd>
           </button>
 
-          {/* Mobile search icon */}
+          {/* Mobile search icon (min 44px touch target) */}
           <button
             onClick={onOpenSearch}
-            className="sm:hidden p-2 rounded-full text-[#544245] hover:bg-[#fbeae8]"
+            className="sm:hidden p-2.5 rounded-full text-[#544245] hover:bg-[#fbeae8] min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
             aria-label="Search"
           >
             <span className="material-symbols-outlined text-[22px]">search</span>
           </button>
 
-          {/* Wishlist Button */}
+          {/* Wishlist Button (min 44px touch target) */}
           <button
             onClick={onOpenWishlist}
             aria-label="Wishlist"
-            className="relative p-2 rounded-full text-[#544245] hover:text-[#5e0b29] hover:bg-[#fbeae8] transition-colors"
+            className="relative p-2.5 rounded-full text-[#544245] hover:text-[#5e0b29] hover:bg-[#fbeae8] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
           >
             <span className="material-symbols-outlined text-[22px]">favorite</span>
             {wishlistCount > 0 && (
-              <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full bg-[#5e0b29] text-white text-[9px] font-bold">
+              <span className="absolute top-1.5 right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#5e0b29] text-white text-[9px] font-bold">
                 {wishlistCount}
               </span>
             )}
           </button>
 
-          {/* Cart Drawer Trigger */}
+          {/* Cart Drawer Trigger (min 44px touch target) */}
           <button
             onClick={onOpenCart}
             aria-label="Shopping Bag"
-            className="relative p-2 rounded-full text-[#544245] hover:text-[#5e0b29] hover:bg-[#fbeae8] transition-colors"
+            className="relative p-2.5 rounded-full text-[#544245] hover:text-[#5e0b29] hover:bg-[#fbeae8] transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
           >
             <span className="material-symbols-outlined text-[22px]">shopping_bag</span>
             {cartCount > 0 && (
-              <span className="absolute top-1 right-1 flex items-center justify-center w-4 h-4 rounded-full bg-[#7c243f] text-white text-[9px] font-bold">
+              <span className="absolute top-1.5 right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-[#7c243f] text-white text-[9px] font-bold">
                 {cartCount}
               </span>
             )}
           </button>
 
-          {/* Profile Avatar */}
-          <div className="flex items-center pl-1 sm:pl-2">
-            <button
-              onClick={onOpenAccount}
-              className="flex items-center gap-2 rounded-full p-0.5 hover:ring-2 hover:ring-[#dac0c4] transition-all"
-              title="My Keepsakes & Account"
-            >
-              <img
-                alt="Profile"
-                className="w-8 h-8 rounded-full object-cover ring-1 ring-[#dac0c4]"
-                src={USER_AVATAR}
-              />
-            </button>
-          </div>
+          {/* Client Authentication & User Account Dropdown */}
+          {currentUser ? (
+            /* Authenticated State: Avatar & Dropdown */
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-[#4CAF50] transition-all cursor-pointer min-h-[44px]"
+                title="Account Menu"
+              >
+                <img
+                  alt={userName}
+                  className="w-8 h-8 rounded-full object-cover ring-1 ring-[#4CAF50]"
+                  src={userAvatar}
+                />
+                <span className="hidden md:inline text-xs font-bold text-[#2B2D2F] max-w-[85px] truncate">
+                  {userName.split(' ')[0]}
+                </span>
+                <span className="material-symbols-outlined text-[16px] text-[#7A8276] hidden md:inline">
+                  arrow_drop_down
+                </span>
+              </button>
 
-          {/* Mobile Menu Hamburger */}
+              {/* Responsive Dropdown Menu */}
+              {userDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#E2E8D8] py-2 z-50 animate-fadeIn">
+                  <div className="px-4 py-2.5 border-b border-[#F0F4EC]">
+                    <p className="text-xs font-bold text-[#2B2D2F] truncate">{userName}</p>
+                    <p className="text-[11px] text-[#7A8276] truncate">{currentUser.email}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-[#EAF5EC] text-[#2D6A4F] text-[9.5px] font-bold uppercase tracking-wider">
+                      {currentUser.tier || 'VIP Gifter'}
+                    </span>
+                  </div>
+
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        onOpenAccount();
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[#2B2D2F] hover:bg-[#FAF9F6] flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[#4CAF50] text-[18px]">account_circle</span>
+                      <span>My Account / Keepsakes</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        onOpenTrackOrder();
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[#2B2D2F] hover:bg-[#FAF9F6] flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[#2D6A4F] text-[18px]">local_shipping</span>
+                      <span>My Orders &amp; Tracking</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        if (onOpenStudio) onOpenStudio();
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-xs font-semibold text-[#2B2D2F] hover:bg-[#FAF9F6] flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <SparkleStarIcon size={16} color="#E9C46A" />
+                      <span>Saved Custom Gifys</span>
+                    </button>
+                  </div>
+
+                  <div className="pt-1 border-t border-[#F0F4EC]">
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        onLogout();
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-xs font-bold text-[#BE123C] hover:bg-[#FFF1F2] flex items-center gap-2.5 cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">logout</span>
+                      <span>Log Out</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Unauthenticated State: Stylish Sign In / Register Button */
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => onOpenAuthModal('signin')}
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white hover:bg-[#EAF5EC] text-[#2D6A4F] border border-[#C5DEC8] font-bold text-xs transition-all shadow-2xs cursor-pointer min-h-[44px]"
+                title="Sign In or Register"
+              >
+                <span className="material-symbols-outlined text-[18px]">person</span>
+                <span className="hidden sm:inline">Sign In / Register</span>
+                <span className="sm:hidden">Sign In</span>
+              </button>
+            </div>
+          )}
+
+          {/* Mobile Menu Hamburger (min 44px touch target) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-[#544245] hover:bg-[#fbeae8]"
+            className="lg:hidden p-2.5 rounded-lg text-[#544245] hover:bg-[#fbeae8] min-w-[44px] min-h-[44px] flex items-center justify-center cursor-pointer"
             aria-label="Toggle menu"
           >
             <span className="material-symbols-outlined text-[24px]">
@@ -280,15 +390,55 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#fff8f7] border-t border-[#dac0c4]/40 px-6 py-4 shadow-xl">
-          <nav className="flex flex-col gap-3">
+        <div className="lg:hidden bg-[#FAF9F6] border-t border-[#E2E8D8] px-5 py-4 shadow-xl max-h-[85vh] overflow-y-auto">
+          {/* User Status Bar in Mobile Drawer */}
+          {currentUser ? (
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#E2E8D8] mb-3">
+              <div className="flex items-center gap-2.5">
+                <img
+                  alt={userName}
+                  src={userAvatar}
+                  className="w-9 h-9 rounded-full object-cover ring-1 ring-[#4CAF50]"
+                />
+                <div>
+                  <span className="text-xs font-bold text-[#2B2D2F] block leading-tight">{userName}</span>
+                  <span className="text-[10px] text-[#2D6A4F] font-bold uppercase">{currentUser.tier || 'VIP Member'}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onLogout();
+                }}
+                className="text-xs font-bold text-[#BE123C] hover:underline"
+              >
+                Log Out
+              </button>
+            </div>
+          ) : (
+            <div className="p-3 rounded-xl bg-white border border-[#E2E8D8] mb-3 flex items-center justify-between gap-2">
+              <span className="text-xs text-[#556353]">Have an account?</span>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAuthModal('signin');
+                }}
+                className="px-4 py-2 rounded-xl bg-[#4CAF50] text-white text-xs font-bold min-h-[44px] flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-[16px]">login</span>
+                <span>Sign In / Register</span>
+              </button>
+            </div>
+          )}
+
+          <nav className="flex flex-col gap-2">
             {onOpenStudio && (
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onOpenStudio();
                 }}
-                className="flex items-center justify-between text-left py-2.5 px-3 text-[15px] font-bold text-[#2D6A4F] bg-[#EAF5EC] rounded-xl"
+                className="flex items-center justify-between text-left py-3 px-3 text-[14px] font-bold text-[#2D6A4F] bg-[#EAF5EC] rounded-xl min-h-[44px]"
               >
                 <div className="flex items-center gap-2">
                   <LilyFlowerIcon size={18} accentColor="#4CAF50" />
@@ -306,7 +456,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                   onOpenLoadingDemo();
                 }}
-                className="flex items-center justify-between text-left py-2 px-3 text-[14px] font-semibold text-[#2B2D2F] bg-white border border-[#DEE5DA] rounded-xl"
+                className="flex items-center justify-between text-left py-2.5 px-3 text-[13px] font-semibold text-[#2B2D2F] bg-white border border-[#DEE5DA] rounded-xl min-h-[44px]"
               >
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-[#4CAF50] animate-ping" />
@@ -331,17 +481,30 @@ export const Header: React.FC<HeaderProps> = ({
                     onSelectCategory(link.id);
                   }
                 }}
-                className="flex items-center justify-between text-left py-2 text-[15px] text-[#221a19] font-medium border-b border-[#f0dfdd]/60"
+                className="flex items-center justify-between text-left py-2.5 text-[14px] text-[#221a19] font-medium border-b border-[#E2E8D8]/60 min-h-[44px]"
               >
                 <span>{link.label}</span>
                 {link.hasDot && <span className="w-2 h-2 rounded-full bg-[#E9C46A]" />}
               </button>
             ))}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-[13px] text-[#425041]">
-              <button onClick={onOpenTrackOrder} className="hover:text-[#2D6A4F]">
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 text-[13px] text-[#425041]">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenTrackOrder();
+                }}
+                className="hover:text-[#2D6A4F] min-h-[44px] flex items-center"
+              >
                 Track Order
               </button>
-              <button onClick={onOpenConcierge} className="hover:text-[#2D6A4F]">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenConcierge();
+                }}
+                className="hover:text-[#2D6A4F] min-h-[44px] flex items-center"
+              >
                 Help &amp; Concierge
               </button>
               <button
@@ -349,12 +512,11 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                   onOpenAdmin();
                 }}
-                className="text-[#2D6A4F] font-bold hover:underline flex items-center gap-1"
+                className="text-[#2D6A4F] font-bold hover:underline flex items-center gap-1 min-h-[44px]"
               >
                 <span className="material-symbols-outlined text-[14px]">shield_person</span>
-                {isAdminLoggedIn ? 'Atelier Portal' : 'Admin Portal'}
+                <span>{isAdminLoggedIn ? 'Atelier Portal' : 'Admin Portal'}</span>
               </button>
-              <span className="font-bold text-[#2D6A4F]">LKR (Rs)</span>
             </div>
           </nav>
         </div>
