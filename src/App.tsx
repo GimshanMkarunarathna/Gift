@@ -27,8 +27,14 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { Toast } from './components/Toast';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { AdminLogin } from './components/admin/AdminLogin';
+import { AnimatedLoadingScreen } from './components/brand/AnimatedLoadingScreen';
+import { GifyStudioHub } from './components/studio/GifyStudioHub';
 
 export default function App() {
+  // Brand & View States
+  const [isLoadingScreenOpen, setIsLoadingScreenOpen] = useState<boolean>(true);
+  const [isStudioActive, setIsStudioActive] = useState<boolean>(false);
+
   // Authentication & Admin State
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdminPortalActive, setIsAdminPortalActive] = useState<boolean>(false);
@@ -87,11 +93,26 @@ export default function App() {
     }, 3200);
   };
 
-  // Restore session & fetch live database products on mount
+  // Global Brand & Theme Settings
+  const [brandSettings, setBrandSettings] = useState<any>(null);
+
+  // Restore session & fetch live database products and brand configuration on mount
   useEffect(() => {
     checkCurrentUser();
     loadLiveProducts();
+    loadBrandSettings();
   }, []);
+
+  const loadBrandSettings = async () => {
+    try {
+      const res = await api.brandSettings.get();
+      if (res.settings) {
+        setBrandSettings(res.settings);
+      }
+    } catch {
+      // offline fallback
+    }
+  };
 
   const checkCurrentUser = async () => {
     try {
@@ -335,6 +356,7 @@ export default function App() {
           onReturnToStorefront={() => {
             setIsAdminPortalActive(false);
             loadLiveProducts(); // Refetch live updates when returning to storefront
+            loadBrandSettings(); // Refetch brand/theme settings
           }}
           onShowToast={showToast}
         />
@@ -343,7 +365,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fff8f7] text-[#221a19] flex flex-col antialiased selection:bg-[#ffd9df] selection:text-[#5e0b29]">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#2B2D2F] flex flex-col antialiased selection:bg-[#EAF5EC] selection:text-[#2D6A4F]">
       {/* Toast Notification */}
       <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
 
@@ -359,7 +381,14 @@ export default function App() {
         onOpenAccount={() => setIsAccountOpen(true)}
         onOpenAdmin={handleOpenAdmin}
         isAdminLoggedIn={currentUser?.role === 'admin'}
+        onOpenStudio={() => setIsStudioActive((prev) => !prev)}
+        onOpenLoadingDemo={() => setIsLoadingScreenOpen(true)}
+        isStudioActive={isStudioActive}
+        announcementText={brandSettings?.announcementActive ? brandSettings?.announcementText : undefined}
         onSelectCategory={(cat) => {
+          if (isStudioActive) {
+            setIsStudioActive(false);
+          }
           setSelectedCategory(cat);
           if (cat !== 'all') {
             scrollToSection('products-section');
@@ -370,73 +399,121 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="w-full pt-20 md:pt-28 flex-1">
-        {/* SECTION 1: HERO */}
-        <Hero
-          onShopGifts={() => scrollToSection('gift-discovery')}
-          onDiscoverGift={() => scrollToSection('smart-gift-finder')}
-          onOpenAtelier={() => setIsPersonalizationOpen(true)}
-        />
+        {isStudioActive ? (
+          <GifyStudioHub
+            onAddToCart={(p) => {
+              handleAddToCart(
+                {
+                  id: p.id,
+                  title: p.name,
+                  subtitle: p.category,
+                  price: p.price,
+                  image: p.image,
+                  imageAlt: p.name,
+                  category: p.category,
+                  formattedPrice: `LKR ${p.price.toLocaleString()}`,
+                  rating: 5.0,
+                  reviewCount: 32,
+                  isPersonalizable: true,
+                  description: p.description,
+                  occasion: ['Everyday'],
+                } as any,
+                1
+              );
+            }}
+            onOpenProductModal={(p) => {
+              setSelectedProductForQuickView({
+                id: p.id,
+                title: p.name,
+                subtitle: p.category,
+                price: p.price,
+                image: p.image,
+                imageAlt: p.name,
+                category: p.category,
+                formattedPrice: `LKR ${p.price.toLocaleString()}`,
+                rating: 5.0,
+                reviewCount: 32,
+                isPersonalizable: true,
+                description: p.description,
+                occasion: ['Everyday'],
+              } as any);
+            }}
+            onShowToast={showToast}
+            onOpenLoadingDemo={() => setIsLoadingScreenOpen(true)}
+            onReturnToStorefront={() => setIsStudioActive(false)}
+            onOpenAdmin={handleOpenAdmin}
+          />
+        ) : (
+          <>
+            {/* SECTION 1: HERO */}
+            <Hero
+              onShopGifts={() => scrollToSection('gift-discovery')}
+              onDiscoverGift={() => scrollToSection('smart-gift-finder')}
+              onOpenAtelier={() => setIsPersonalizationOpen(true)}
+            />
 
-        {/* SECTION 2: CURATION PATHWAYS */}
-        <CurationPathways
-          activePathway={activePathway}
-          onSelectPathway={(p) => {
-            setActivePathway(p);
-            scrollToSection('products-section');
-          }}
-          onHelpMeChoose={() => scrollToSection('smart-gift-finder')}
-        />
+            {/* SECTION 2: CURATION PATHWAYS */}
+            <CurationPathways
+              activePathway={activePathway}
+              onSelectPathway={(p) => {
+                setActivePathway(p);
+                scrollToSection('products-section');
+              }}
+              onHelpMeChoose={() => scrollToSection('smart-gift-finder')}
+            />
 
-        {/* SECTION 3: SHOP BY CURATED CATEGORY */}
-        <CategoryGrid
-          selectedCategory={selectedCategory}
-          onSelectCategory={(cat) => {
-            setSelectedCategory(cat);
-            scrollToSection('products-section');
-          }}
-        />
+            {/* SECTION 3: SHOP BY CURATED CATEGORY */}
+            <CategoryGrid
+              selectedCategory={selectedCategory}
+              onSelectCategory={(cat) => {
+                setSelectedCategory(cat);
+                scrollToSection('products-section');
+              }}
+            />
 
-        {/* SECTION 4: MOST TREASURED PRODUCT GRID */}
-        <ProductGrid
-          products={filteredProducts}
-          wishlistIds={wishlistIds}
-          onToggleWishlist={handleToggleWishlist}
-          onAddToCart={(p) => handleAddToCart(p, 1)}
-          onQuickView={(p) => setSelectedProductForQuickView(p)}
-          onResetFilters={handleResetFilters}
-        />
+            {/* SECTION 4: MOST TREASURED PRODUCT GRID */}
+            <ProductGrid
+              products={filteredProducts}
+              wishlistIds={wishlistIds}
+              onToggleWishlist={handleToggleWishlist}
+              onAddToCart={(p) => handleAddToCart(p, 1)}
+              onQuickView={(p) => setSelectedProductForQuickView(p)}
+              onResetFilters={handleResetFilters}
+            />
 
-        {/* SECTION 5: SIGNATURE PERSONALIZATION ATELIER */}
-        <PersonalizationAtelier
-          onOpenModal={() => setIsPersonalizationOpen(true)}
-          savedPersonalization={globalPersonalization}
-        />
+            {/* SECTION 5: SIGNATURE PERSONALIZATION ATELIER */}
+            <PersonalizationAtelier
+              onOpenModal={() => setIsPersonalizationOpen(true)}
+              savedPersonalization={globalPersonalization}
+            />
 
-        {/* SECTION 6: SHOP BY OCCASION */}
-        <OccasionGrid
-          onSelectOccasion={(occ) => {
-            setSelectedOccasion(occ);
-            scrollToSection('products-section');
-          }}
-        />
+            {/* SECTION 6: SHOP BY OCCASION */}
+            <OccasionGrid
+              onSelectOccasion={(occ) => {
+                setSelectedOccasion(occ);
+                scrollToSection('products-section');
+              }}
+            />
 
-        {/* SECTION 7: SMART GIFT FINDER CONCIERGE */}
-        <SmartGiftFinder onCompleteFinder={handleCompleteFinder} />
+            {/* SECTION 7: SMART GIFT FINDER CONCIERGE */}
+            <SmartGiftFinder onCompleteFinder={handleCompleteFinder} />
 
-        {/* SECTION 8: TRUST AND SERVICE BENEFITS */}
-        <TrustBenefits
-          onOpenConcierge={() => setIsConciergeOpen(true)}
-          onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
-        />
+            {/* SECTION 8: TRUST AND SERVICE BENEFITS */}
+            <TrustBenefits
+              onOpenConcierge={() => setIsConciergeOpen(true)}
+              onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
+            />
 
-        {/* SECTION 9: TESTIMONIALS / WORDS FROM RECIPIENTS */}
-        <Testimonials />
+            {/* SECTION 9: TESTIMONIALS / WORDS FROM RECIPIENTS */}
+            <Testimonials />
 
-        {/* SECTION 10: VISUAL ANTHOLOGY (INSTAGRAM GALLERY) */}
-        <VisualAnthology onShowToast={showToast} />
+            {/* SECTION 10: VISUAL ANTHOLOGY (INSTAGRAM GALLERY) */}
+            <VisualAnthology onShowToast={showToast} />
 
-        {/* SECTION 11: NEWSLETTER (THE GIFTORA JOURNAL) */}
-        <Newsletter onShowToast={showToast} />
+            {/* SECTION 11: NEWSLETTER (THE GIFTORA JOURNAL) */}
+            <Newsletter onShowToast={showToast} />
+          </>
+        )}
       </main>
 
       {/* FOOTER */}
@@ -558,6 +635,13 @@ export default function App() {
           onCancel={() => setIsAdminLoginModalOpen(false)}
         />
       )}
+
+      {/* STEP 3: Animated Lily Bloom Loading Screen Experience */}
+      <AnimatedLoadingScreen
+        isOpen={isLoadingScreenOpen}
+        onClose={() => setIsLoadingScreenOpen(false)}
+        autoCloseMs={brandSettings?.loadingBloomSpeed || 2800}
+      />
     </div>
   );
 }

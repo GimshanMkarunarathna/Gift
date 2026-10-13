@@ -9,22 +9,39 @@ dashboardRouter.get('/summary', requireAdmin, (req: AuthenticatedRequest, res: R
   const orders = storage.getOrders();
   const products = storage.getProducts();
   const users = storage.getUsers();
+  const gifyAssets = storage.getGifyAssets();
+  const accessories = storage.getCuteAccessories();
+  const customRequests = storage.getCustomRequests();
 
   const paidOrders = orders.filter((o) => o.paymentStatus === 'paid');
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0);
+  const paidCustomRequestsRevenue = customRequests
+    .filter((r) => r.status === 'completed' || r.status === 'shipped' || r.status === 'processing')
+    .reduce((sum, r) => sum + (r.amount || 0), 0);
+  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0) + paidCustomRequestsRevenue;
 
   const pendingOrders = orders.filter((o) => o.fulfillmentStatus === 'pending' || o.fulfillmentStatus === 'confirmed');
   const activeProducts = products.filter((p) => p.status === 'active');
   const lowStockProducts = products.filter((p) => p.stockQuantity <= p.lowStockThreshold && p.status === 'active');
   const registeredCustomers = users.filter((u) => u.role === 'customer');
 
+  const activeGifyAssetsCount = gifyAssets.filter((a) => a.status === 'active').length;
+  const totalAccessoriesCount = accessories.length;
+  const totalCustomRequestsCount = customRequests.length;
+  const pendingCustomRequestsCount = customRequests.filter((r) => r.status === 'pending').length;
+
   res.json({
     totalRevenue,
+    totalSales: totalRevenue,
     totalOrders: orders.length,
     pendingOrdersCount: pendingOrders.length,
     activeProductsCount: activeProducts.length,
     lowStockCount: lowStockProducts.length,
     registeredCustomersCount: registeredCustomers.length,
+    // GLÜCK GIFY Overview Metrics
+    activeGifyAssetsCount,
+    totalAccessoriesCount,
+    totalCustomRequestsCount,
+    pendingCustomRequestsCount,
   });
 });
 

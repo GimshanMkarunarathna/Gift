@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { BRAND_LOGO, USER_AVATAR } from '../data/mockData';
+import { GluckGifyLogo } from './brand/GluckGifyLogo';
+import { LilyFlowerIcon, SparkleStarIcon } from './brand/BrandIcons';
+import { USER_AVATAR } from '../data/mockData';
 
 interface HeaderProps {
   cartCount: number;
@@ -14,6 +16,10 @@ interface HeaderProps {
   isAdminLoggedIn?: boolean;
   onSelectCategory: (category: string) => void;
   currentCategory: string;
+  onOpenStudio?: () => void;
+  onOpenLoadingDemo?: () => void;
+  isStudioActive?: boolean;
+  announcementText?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -29,6 +35,10 @@ export const Header: React.FC<HeaderProps> = ({
   isAdminLoggedIn,
   onSelectCategory,
   currentCategory,
+  onOpenStudio,
+  onOpenLoadingDemo,
+  isStudioActive,
+  announcementText,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -45,43 +55,57 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="fixed top-0 left-0 right-0 w-full z-40 bg-[#fff8f7]/95 backdrop-blur-md shadow-[0_1px_8px_rgba(41,32,31,0.04)] border-b border-[#dac0c4]/30">
       {/* Top Banner Bar */}
-      <div className="w-full bg-[#fff0ef] px-6 lg:px-10 py-1.5 hidden md:block border-b border-[#dac0c4]/20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-[11px] font-bold tracking-[0.08em] text-[#544245]">
+      <div className="w-full bg-[#F3F7F2] px-6 lg:px-10 py-1.5 hidden md:block border-b border-[#DDE5DA]">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-[11px] font-bold tracking-[0.08em] text-[#3E4A3D]">
           <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#5e0b29] text-[15px]">redeem</span>
-            <span>Complimentary luxury gift wrapping on orders over LKR 5,000</span>
+            <span className="material-symbols-outlined text-[#4CAF50] text-[15px]">eco</span>
+            <span>{announcementText || 'Complimentary botanical gift packaging on orders over LKR 5,000'}</span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-[#5e0b29] font-bold">
-            <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
-            <span>Use code FIRSTJOY for 10% off your first gift</span>
+          <div className="flex items-center gap-1.5 text-[#2D6A4F] font-bold">
+            <SparkleStarIcon size={14} accentColor="#E9C46A" />
+            <span>Use code FIRSTJOY for 10% off your first cute gift</span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            {onOpenLoadingDemo && (
+              <>
+                <button
+                  onClick={onOpenLoadingDemo}
+                  className="text-[#2D6A4F] hover:text-[#1F2421] font-semibold flex items-center gap-1 cursor-pointer bg-white px-2 py-0.5 rounded-full border border-[#D5E1D2] shadow-2xs"
+                  title="Experience Animated Lily Bloom Loading Screen"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4CAF50] animate-ping" />
+                  <span>Bloom Screen</span>
+                </button>
+                <span className="text-[#CFDAC9]">•</span>
+              </>
+            )}
+
             <button
               onClick={onOpenTrackOrder}
-              className="hover:text-[#5e0b29] transition-colors focus:outline-none cursor-pointer"
+              className="hover:text-[#2D6A4F] transition-colors focus:outline-none cursor-pointer"
             >
               Track Order
             </button>
-            <span className="text-[#dac0c4]">•</span>
+            <span className="text-[#CFDAC9]">•</span>
             <button
               onClick={onOpenConcierge}
-              className="hover:text-[#5e0b29] transition-colors focus:outline-none cursor-pointer"
+              className="hover:text-[#2D6A4F] transition-colors focus:outline-none cursor-pointer"
             >
-              Help &amp; Concierge
+              Concierge
             </button>
-            <span className="text-[#dac0c4]">•</span>
+            <span className="text-[#CFDAC9]">•</span>
             <button
               onClick={onOpenAdmin}
-              className="text-[#5e0b29] font-bold hover:underline flex items-center gap-1 cursor-pointer bg-[#ffd9df]/50 px-2 py-0.5 rounded-full"
+              className="text-[#2D6A4F] font-bold hover:underline flex items-center gap-1 cursor-pointer bg-[#EAF5EC] px-2 py-0.5 rounded-full"
               title="Protected Administrator Portal"
             >
               <span className="material-symbols-outlined text-[13px]">shield_person</span>
               <span>{isAdminLoggedIn ? 'Atelier Portal' : 'Admin Portal'}</span>
             </button>
-            <span className="text-[#dac0c4]">•</span>
-            <span className="flex items-center gap-1 font-semibold text-[#5e0b29]">
+            <span className="text-[#CFDAC9]">•</span>
+            <span className="flex items-center gap-1 font-semibold text-[#2D6A4F]">
               <span className="material-symbols-outlined text-[14px]">payments</span>
               LKR (Rs)
             </span>
@@ -92,38 +116,57 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Main Navigation Bar */}
       <div className="h-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between gap-4">
         {/* Brand Logo & Title */}
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           <button
             onClick={() => {
+              if (onOpenStudio && isStudioActive) {
+                // If studio is open, toggle back to storefront
+              }
               onSelectCategory('all');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="flex items-center gap-3 text-left group"
+            className="flex items-center gap-3 text-left group cursor-pointer"
           >
-            <img
-              alt="Giftora Brand Logo"
-              className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
-              src={BRAND_LOGO}
-            />
+            <GluckGifyLogo size="sm" showText={false} glow={true} className="transition-transform group-hover:scale-105" />
             <div className="flex flex-col">
-              <span className="font-editorial text-[22px] tracking-tight text-[#5e0b29] font-semibold leading-none">
-                GIFTORA
+              <span className="text-[20px] tracking-[0.16em] text-[#2B2D2F] font-bold leading-none">
+                GLÜCK GIFY
               </span>
-              <span className="text-[9px] tracking-[0.2em] text-[#544245] uppercase mt-1 font-bold">
-                The Art of Giving
+              <span className="text-[8.5px] tracking-[0.24em] text-[#4CAF50] uppercase mt-1 font-bold">
+                Cute Gify &amp; Accessories
               </span>
             </div>
           </button>
         </div>
 
         {/* Center Desktop Links */}
-        <nav className="hidden lg:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-6">
+          {onOpenStudio && (
+            <button
+              onClick={onOpenStudio}
+              className={`text-[14px] font-bold transition-all flex items-center gap-1.5 px-3 py-1.5 rounded-full cursor-pointer ${
+                isStudioActive
+                  ? 'bg-[#EAF5EC] text-[#2D6A4F] ring-1 ring-[#4CAF50]'
+                  : 'text-[#2D6A4F] hover:bg-[#EAF5EC]/70 bg-[#F4F8F3]'
+              }`}
+            >
+              <LilyFlowerIcon size={16} accentColor="#4CAF50" />
+              <span>Gify Studio &amp; Maker</span>
+              <span className="text-[9px] bg-[#4CAF50] text-white px-1.5 py-0.2 rounded-full uppercase tracking-wider font-extrabold">
+                Cute Hub
+              </span>
+            </button>
+          )}
+
           {navLinks.map((link) => {
-            const isActive = currentCategory === link.id;
+            const isActive = !isStudioActive && currentCategory === link.id;
             return (
               <button
                 key={link.id}
                 onClick={() => {
+                  if (isStudioActive && onOpenStudio) {
+                    onOpenStudio(); // Close studio and return to store
+                  }
                   if (link.id === 'occasions') {
                     const el = document.getElementById('milestones-section');
                     el?.scrollIntoView({ behavior: 'smooth' });
@@ -136,18 +179,18 @@ export const Header: React.FC<HeaderProps> = ({
                     onSelectCategory(link.id);
                   }
                 }}
-                className={`text-[15px] transition-colors flex items-center gap-1 py-1 relative ${
+                className={`text-[14.5px] transition-colors flex items-center gap-1 py-1 relative ${
                   isActive
-                    ? 'text-[#5e0b29] font-semibold'
-                    : 'text-[#544245] hover:text-[#221a19]'
+                    ? 'text-[#2D6A4F] font-bold'
+                    : 'text-[#4A5749] hover:text-[#2B2D2F]'
                 }`}
               >
                 <span>{link.label}</span>
                 {link.hasDot && (
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#ffa5b7]" />
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#E9C46A]" />
                 )}
                 {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#5e0b29] rounded-full" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#4CAF50] rounded-full" />
                 )}
               </button>
             );
@@ -239,6 +282,40 @@ export const Header: React.FC<HeaderProps> = ({
       {mobileMenuOpen && (
         <div className="lg:hidden bg-[#fff8f7] border-t border-[#dac0c4]/40 px-6 py-4 shadow-xl">
           <nav className="flex flex-col gap-3">
+            {onOpenStudio && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenStudio();
+                }}
+                className="flex items-center justify-between text-left py-2.5 px-3 text-[15px] font-bold text-[#2D6A4F] bg-[#EAF5EC] rounded-xl"
+              >
+                <div className="flex items-center gap-2">
+                  <LilyFlowerIcon size={18} accentColor="#4CAF50" />
+                  <span>Cute Gify Studio &amp; Maker</span>
+                </div>
+                <span className="text-[10px] bg-[#4CAF50] text-white px-2 py-0.5 rounded-full uppercase tracking-wider font-extrabold">
+                  Explore
+                </span>
+              </button>
+            )}
+
+            {onOpenLoadingDemo && (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenLoadingDemo();
+                }}
+                className="flex items-center justify-between text-left py-2 px-3 text-[14px] font-semibold text-[#2B2D2F] bg-white border border-[#DEE5DA] rounded-xl"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#4CAF50] animate-ping" />
+                  <span>Bloom Loading Screen</span>
+                </div>
+                <span className="material-symbols-outlined text-[16px] text-[#4CAF50]">play_circle</span>
+              </button>
+            )}
+
             {navLinks.map((link) => (
               <button
                 key={link.id}
@@ -254,17 +331,17 @@ export const Header: React.FC<HeaderProps> = ({
                     onSelectCategory(link.id);
                   }
                 }}
-                className="flex items-center justify-between text-left py-2 text-[16px] text-[#221a19] font-medium border-b border-[#f0dfdd]/60"
+                className="flex items-center justify-between text-left py-2 text-[15px] text-[#221a19] font-medium border-b border-[#f0dfdd]/60"
               >
                 <span>{link.label}</span>
-                {link.hasDot && <span className="w-2 h-2 rounded-full bg-[#ffa5b7]" />}
+                {link.hasDot && <span className="w-2 h-2 rounded-full bg-[#E9C46A]" />}
               </button>
             ))}
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-[13px] text-[#544245]">
-              <button onClick={onOpenTrackOrder} className="hover:text-[#5e0b29]">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-[13px] text-[#425041]">
+              <button onClick={onOpenTrackOrder} className="hover:text-[#2D6A4F]">
                 Track Order
               </button>
-              <button onClick={onOpenConcierge} className="hover:text-[#5e0b29]">
+              <button onClick={onOpenConcierge} className="hover:text-[#2D6A4F]">
                 Help &amp; Concierge
               </button>
               <button
@@ -272,12 +349,12 @@ export const Header: React.FC<HeaderProps> = ({
                   setMobileMenuOpen(false);
                   onOpenAdmin();
                 }}
-                className="text-[#5e0b29] font-bold hover:underline flex items-center gap-1"
+                className="text-[#2D6A4F] font-bold hover:underline flex items-center gap-1"
               >
                 <span className="material-symbols-outlined text-[14px]">shield_person</span>
                 {isAdminLoggedIn ? 'Atelier Portal' : 'Admin Portal'}
               </button>
-              <span className="font-bold text-[#5e0b29]">LKR (Rs)</span>
+              <span className="font-bold text-[#2D6A4F]">LKR (Rs)</span>
             </div>
           </nav>
         </div>

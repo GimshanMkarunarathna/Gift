@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { api, User } from '../../services/api';
-import { BRAND_LOGO } from '../../data/mockData';
+import { GluckGifyLogo } from '../brand/GluckGifyLogo';
+import { LilyFlowerIcon, SparkleStarIcon, CuteBackpackIcon, GiftRibbonIcon } from '../brand/BrandIcons';
+import { AdminOverviewDashboard } from './AdminOverviewDashboard';
+import { AdminGifyAssets } from './AdminGifyAssets';
+import { AdminCuteAccessories } from './AdminCuteAccessories';
+import { AdminCustomRequests } from './AdminCustomRequests';
+import { AdminBrandSettings } from './AdminBrandSettings';
 
 interface AdminPortalProps {
   currentUser: User;
@@ -9,8 +15,12 @@ interface AdminPortalProps {
   onShowToast: (msg: string) => void;
 }
 
-type AdminSection =
+export type AdminSection =
   | 'dashboard'
+  | 'studio-assets'
+  | 'studio-accessories'
+  | 'custom-requests'
+  | 'brand-settings'
   | 'products'
   | 'categories'
   | 'orders'
@@ -28,6 +38,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 }) => {
   const [activeSection, setActiveSection] = useState<AdminSection>('dashboard');
   const [loading, setLoading] = useState(false);
+  const [dbStatus, setDbStatus] = useState<any>(null);
+
+  // GLÜCK GIFY Studio Data
+  const [gifyAssetsList, setGifyAssetsList] = useState<any[]>([]);
+  const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
+  const [customRequestsList, setCustomRequestsList] = useState<any[]>([]);
+
+  // Quick Action Modal helpers
+  const [isQuickAssetModalOpen, setIsQuickAssetModalOpen] = useState(false);
+  const [isQuickAccModalOpen, setIsQuickAccModalOpen] = useState(false);
 
   // Dashboard Data
   const [summary, setSummary] = useState<any>(null);
@@ -87,16 +107,33 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setLoading(true);
     try {
       if (section === 'dashboard') {
-        const [sum, sales, top, recent] = await Promise.all([
+        const [sum, sales, top, recent, health, assetsRes, accsRes, customReqsRes] = await Promise.all([
           api.dashboard.getSummary(),
           api.dashboard.getSales(),
           api.dashboard.getTopProducts(),
           api.dashboard.getRecentOrders(),
+          api.system.getHealth().catch(() => null),
+          api.studio.getAssets().catch(() => ({ total: 0, assets: [] })),
+          api.studio.getAccessories().catch(() => ({ total: 0, accessories: [] })),
+          api.customRequests.getAll().catch(() => ({ total: 0, requests: [] })),
         ]);
         setSummary(sum);
         setSalesTimeline(sales.salesTimeline || []);
         setTopProducts(top.topProducts || []);
         setRecentOrders(recent.recentOrders || []);
+        if (health) setDbStatus(health);
+        setGifyAssetsList(assetsRes.assets || []);
+        setAccessoriesList(accsRes.accessories || []);
+        setCustomRequestsList(customReqsRes.requests || []);
+      } else if (section === 'studio-assets') {
+        const res = await api.studio.getAssets();
+        setGifyAssetsList(res.assets || []);
+      } else if (section === 'studio-accessories') {
+        const res = await api.studio.getAccessories();
+        setAccessoriesList(res.accessories || []);
+      } else if (section === 'custom-requests') {
+        const res = await api.customRequests.getAll();
+        setCustomRequestsList(res.requests || []);
       } else if (section === 'products') {
         const res = await api.products.getAll({ includeAll: true });
         setProductsList(res.products || []);
@@ -281,16 +318,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#fff8f7] text-[#221a19] flex flex-col antialiased">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#2B2D2F] flex flex-col antialiased">
       {/* Top Admin Header Bar */}
-      <header className="h-16 bg-[#382e2d] text-white px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-md">
+      <header className="h-16 bg-[#2B2D2F] text-white px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-md border-b border-[#3D4043]">
         <div className="flex items-center gap-3">
-          <img alt="Giftora Logo" src={BRAND_LOGO} className="h-7 w-auto invert" />
+          <GluckGifyLogo size="icon-only" glow={true} className="w-8 h-8" />
           <div className="flex items-center gap-2">
-            <span className="font-editorial text-[18px] font-semibold tracking-tight text-white">
-              GIFTORA Atelier
+            <span className="font-serif text-[17px] font-semibold tracking-tight text-white">
+              GLÜCK GIFY Atelier
             </span>
-            <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-[#7c243f] text-[#ffd9df]">
+            <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-[#4CAF50] text-white shadow-2xs">
               Admin Portal
             </span>
           </div>
@@ -299,7 +336,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         <div className="flex items-center gap-4">
           <button
             onClick={onReturnToStorefront}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-[12.5px] font-medium transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-[#4CAF50] text-white text-[12.5px] font-medium transition-all cursor-pointer shadow-2xs"
           >
             <span className="material-symbols-outlined text-[16px]">storefront</span>
             <span className="hidden sm:inline">View Public Storefront</span>
@@ -309,10 +346,10 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
           <div className="flex items-center gap-2">
             <div className="text-right hidden sm:block">
-              <span className="text-[12.5px] font-bold block leading-none">
+              <span className="text-[12.5px] font-bold block leading-none text-white">
                 {currentUser.name}
               </span>
-              <span className="text-[10px] text-[#ffd9df] uppercase font-mono">
+              <span className="text-[10px] text-[#A3D9B1] uppercase font-mono">
                 {currentUser.role}
               </span>
             </div>
@@ -330,58 +367,105 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       {/* Main Admin Layout: Sidebar + Content */}
       <div className="flex-1 flex flex-col md:flex-row">
         {/* Left Sidebar */}
-        <aside className="w-full md:w-64 bg-[#fff0ef] border-r border-[#dac0c4]/40 p-4 sm:p-5 flex flex-col justify-between shrink-0">
-          <nav className="space-y-1">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-[#904858] px-3 mb-2">
-              Management Suite
+        <aside className="w-full md:w-64 bg-white border-r border-[#E2E8D8] p-4 sm:p-5 flex flex-col justify-between shrink-0 shadow-2xs">
+          <nav className="space-y-4">
+            {/* Group 1: GLÜCK GIFY Studio & Bespoke Suite */}
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#4CAF50] px-3 mb-2 flex items-center gap-1.5">
+                <SparkleStarIcon size={12} color="#4CAF50" />
+                <span>Gify Studio &amp; Brand</span>
+              </div>
+              <div className="space-y-1">
+                {[
+                  { id: 'dashboard', label: 'Overview Dashboard', icon: 'dashboard' },
+                  { id: 'studio-assets', label: 'Gify Assets Studio', icon: 'local_florist' },
+                  { id: 'studio-accessories', label: 'Cute Accessories', icon: 'shopping_bag' },
+                  { id: 'custom-requests', label: 'Custom Maker Requests', icon: 'palette' },
+                  { id: 'brand-settings', label: 'Brand & Logo Settings', icon: 'settings_suggest' },
+                ].map((item) => {
+                  const isActive = activeSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSection(item.id as AdminSection)}
+                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold text-left transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[#4CAF50] text-white shadow-xs'
+                          : 'text-[#4A5568] hover:bg-[#FAF9F6] hover:text-[#2B2D2F]'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[19px]">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {[
-              { id: 'dashboard', label: 'Dashboard Overview', icon: 'dashboard' },
-              { id: 'products', label: 'Products & Crafts', icon: 'inventory_2' },
-              { id: 'categories', label: 'Categories & Occasions', icon: 'category' },
-              { id: 'orders', label: 'Client Orders', icon: 'local_shipping' },
-              { id: 'inventory', label: 'Stock & Inventory', icon: 'warehouse' },
-              { id: 'customers', label: 'Customer Accounts', icon: 'groups' },
-              { id: 'coupons', label: 'Coupons & Promos', icon: 'sell' },
-              { id: 'homepage', label: 'Storefront CMS', icon: 'web' },
-              { id: 'audit', label: 'Security & Audit Logs', icon: 'history_edu' },
-            ].map((item) => {
-              const isActive = activeSection === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id as AdminSection)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-semibold text-left transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[#5e0b29] text-white shadow-xs'
-                      : 'text-[#544245] hover:bg-[#fbeae8] hover:text-[#5e0b29]'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+            {/* Group 2: E-Commerce & Inventory Management */}
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#7A8276] px-3 mb-2">
+                Storefront &amp; Inventory
+              </div>
+              <div className="space-y-1">
+                {[
+                  { id: 'products', label: 'Products & Crafts', icon: 'inventory_2' },
+                  { id: 'orders', label: 'Client Orders', icon: 'local_shipping' },
+                  { id: 'inventory', label: 'Stock & Movements', icon: 'warehouse' },
+                  { id: 'categories', label: 'Categories & Occasions', icon: 'category' },
+                  { id: 'customers', label: 'Customer Accounts', icon: 'groups' },
+                  { id: 'coupons', label: 'Coupons & Promos', icon: 'sell' },
+                  { id: 'audit', label: 'Security & Audit Logs', icon: 'history_edu' },
+                ].map((item) => {
+                  const isActive = activeSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveSection(item.id as AdminSection)}
+                      className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold text-left transition-all cursor-pointer ${
+                        isActive
+                          ? 'bg-[#4CAF50] text-white shadow-xs'
+                          : 'text-[#4A5568] hover:bg-[#FAF9F6] hover:text-[#2B2D2F]'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[19px]">{item.icon}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </nav>
 
-          <div className="pt-6 border-t border-[#dac0c4]/40 mt-6 text-[11px] text-[#877275]">
-            <p>Database: Connected &amp; Persistent</p>
-            <p className="mt-0.5">Timezone: Asia/Colombo (SLST)</p>
+          <div className="pt-6 border-t border-[#E2E8D8] mt-6 text-[11px] text-[#7A8276] space-y-1">
+            <div className="flex items-center gap-1.5 font-medium text-[#2D6A4F]">
+              <span className="w-2 h-2 rounded-full bg-[#4CAF50] animate-pulse" />
+              <span>Database Persistent &amp; Active</span>
+            </div>
+            <p className="text-[10.5px]">Timezone: Asia/Colombo (SLST)</p>
           </div>
         </aside>
 
         {/* Content Area */}
         <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
           {/* Breadcrumb Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-6 mb-6 border-b border-[#dac0c4]/40">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-6 mb-6 border-b border-[#E2E8D8]">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#904858]">
-                Atelier Administration
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#4CAF50] flex items-center gap-1.5">
+                <SparkleStarIcon size={12} color="#4CAF50" />
+                <span>GLÜCK GIFY Command Suite</span>
               </span>
-              <h1 className="font-editorial text-[26px] text-[#5e0b29] font-semibold capitalize">
-                {activeSection === 'homepage'
-                  ? 'Storefront Content Management (CMS)'
+              <h1 className="font-serif text-[26px] text-[#2B2D2F] font-bold capitalize mt-0.5">
+                {activeSection === 'dashboard'
+                  ? 'Overview Dashboard'
+                  : activeSection === 'studio-assets'
+                  ? 'Gify Assets Studio'
+                  : activeSection === 'studio-accessories'
+                  ? 'Cute Accessories Management'
+                  : activeSection === 'custom-requests'
+                  ? 'Order & Custom Maker Requests'
+                  : activeSection === 'brand-settings'
+                  ? 'Brand Settings & Theme Configuration'
                   : activeSection}
               </h1>
             </div>
@@ -389,199 +473,60 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => refreshCurrentSection(activeSection)}
-                className="px-3 py-1.5 rounded-full bg-[#fbeae8] text-[#5e0b29] text-[12px] font-bold hover:bg-[#f0dfdd] flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-full bg-white border border-[#E2E8D8] text-[#2B2D2F] text-[12px] font-bold hover:bg-[#FAF9F6] hover:border-[#4CAF50] flex items-center gap-1.5 cursor-pointer shadow-2xs transition-all"
               >
                 <span className="material-symbols-outlined text-[16px]">refresh</span>
-                <span>Refresh</span>
+                <span>Refresh Live</span>
               </button>
             </div>
           </div>
 
-          {/* SECTION 1: DASHBOARD */}
+          {/* GLÜCK GIFY STUDIO & BESPOKE SECTIONS */}
+
+          {/* 1. OVERVIEW DASHBOARD */}
           {activeSection === 'dashboard' && (
-            <div className="space-y-6">
-              {/* Summary Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-5 rounded-2xl bg-white border border-[#dac0c4]/40 shadow-xs">
-                  <div className="flex items-center justify-between text-[#904858] mb-2">
-                    <span className="text-[11.5px] font-bold uppercase tracking-wider">
-                      Paid Revenue
-                    </span>
-                    <span className="material-symbols-outlined text-[20px]">payments</span>
-                  </div>
-                  <div className="text-[22px] font-bold text-[#5e0b29]">
-                    LKR {(summary?.totalRevenue || 0).toLocaleString()}
-                  </div>
-                  <span className="text-[11px] text-[#877275] mt-1 block">
-                    From {summary?.totalOrders || 0} customer orders
-                  </span>
-                </div>
+            <AdminOverviewDashboard
+              summary={summary}
+              salesTimeline={salesTimeline}
+              topProducts={topProducts}
+              recentOrders={recentOrders}
+              customRequests={customRequestsList}
+              onNavigateSection={(sec) => setActiveSection(sec)}
+              onOpenCreateAsset={() => setActiveSection('studio-assets')}
+              onOpenCreateAccessory={() => setActiveSection('studio-accessories')}
+            />
+          )}
 
-                <div className="p-5 rounded-2xl bg-white border border-[#dac0c4]/40 shadow-xs">
-                  <div className="flex items-center justify-between text-[#904858] mb-2">
-                    <span className="text-[11.5px] font-bold uppercase tracking-wider">
-                      Pending Fulfillment
-                    </span>
-                    <span className="material-symbols-outlined text-[20px]">pending_actions</span>
-                  </div>
-                  <div className="text-[22px] font-bold text-[#5e0b29]">
-                    {summary?.pendingOrdersCount || 0}
-                  </div>
-                  <span className="text-[11px] text-[#877275] mt-1 block">
-                    Requires packing or calligraphy note
-                  </span>
-                </div>
+          {/* 2. GIFTY ASSETS STUDIO */}
+          {activeSection === 'studio-assets' && (
+            <AdminGifyAssets
+              assets={gifyAssetsList}
+              onRefresh={() => refreshCurrentSection('studio-assets')}
+              onShowToast={onShowToast}
+            />
+          )}
 
-                <div className="p-5 rounded-2xl bg-white border border-[#dac0c4]/40 shadow-xs">
-                  <div className="flex items-center justify-between text-[#904858] mb-2">
-                    <span className="text-[11.5px] font-bold uppercase tracking-wider">
-                      Active Products
-                    </span>
-                    <span className="material-symbols-outlined text-[20px]">category</span>
-                  </div>
-                  <div className="text-[22px] font-bold text-[#5e0b29]">
-                    {summary?.activeProductsCount || 0}
-                  </div>
-                  <span className="text-[11px] text-[#877275] mt-1 block">
-                    Published in storefront
-                  </span>
-                </div>
+          {/* 3. CUTE ACCESSORIES BOUTIQUE */}
+          {activeSection === 'studio-accessories' && (
+            <AdminCuteAccessories
+              accessories={accessoriesList}
+              onRefresh={() => refreshCurrentSection('studio-accessories')}
+              onShowToast={onShowToast}
+            />
+          )}
 
-                <div className="p-5 rounded-2xl bg-white border border-[#dac0c4]/40 shadow-xs">
-                  <div className="flex items-center justify-between text-[#904858] mb-2">
-                    <span className="text-[11.5px] font-bold uppercase tracking-wider">
-                      Low-Stock Alerts
-                    </span>
-                    <span className="material-symbols-outlined text-[20px] text-[#ba1a1a]">
-                      warning
-                    </span>
-                  </div>
-                  <div className="text-[22px] font-bold text-[#ba1a1a]">
-                    {summary?.lowStockCount || 0}
-                  </div>
-                  <span className="text-[11px] text-[#877275] mt-1 block">
-                    Items &le; threshold level
-                  </span>
-                </div>
-              </div>
+          {/* 4. ORDER & CUSTOM MAKER REQUESTS */}
+          {activeSection === 'custom-requests' && (
+            <AdminCustomRequests
+              requests={customRequestsList}
+              onRefresh={() => refreshCurrentSection('custom-requests')}
+              onShowToast={onShowToast}
+            />
+          )}
 
-              {/* 7-Day Sales Timeline Chart */}
-              <div className="p-6 rounded-2xl bg-white border border-[#dac0c4]/40 shadow-xs">
-                <h3 className="font-editorial text-[18px] text-[#5e0b29] font-semibold mb-4">
-                  Weekly Sales Timeline (LKR)
-                </h3>
-                <div className="h-44 flex items-end gap-3 pt-6 border-b border-[#dac0c4]/30 pb-2">
-                  {salesTimeline.map((item, idx) => {
-                    const maxRevenue = Math.max(
-                      ...salesTimeline.map((s) => s.revenue),
-                      10000
-                    );
-                    const heightPercent = Math.max(
-                      10,
-                      Math.round((item.revenue / maxRevenue) * 100)
-                    );
-                    return (
-                      <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                        <span className="text-[10px] font-bold text-[#5e0b29] opacity-0 group-hover:opacity-100 transition-opacity">
-                          LKR {item.revenue.toLocaleString()}
-                        </span>
-                        <div
-                          className="w-full bg-[#7c243f] group-hover:bg-[#5e0b29] rounded-t-lg transition-all"
-                          style={{ height: `${heightPercent}%` }}
-                        />
-                        <span className="text-[10px] text-[#877275] whitespace-nowrap">
-                          {item.label}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Recent Orders & Top Selling Products */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Orders */}
-                <div className="p-6 rounded-2xl bg-white border border-[#dac0c4]/40 shadow-xs">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-editorial text-[18px] text-[#5e0b29] font-semibold">
-                      Recent Keepsake Orders
-                    </h3>
-                    <button
-                      onClick={() => setActiveSection('orders')}
-                      className="text-[12px] font-bold text-[#5e0b29] hover:underline"
-                    >
-                      View All Orders &rarr;
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    {recentOrders.map((ord) => (
-                      <div
-                        key={ord.id}
-                        className="p-3 rounded-xl bg-[#fff8f7] border border-[#dac0c4]/30 flex items-center justify-between"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-[#5e0b29] text-[13px]">
-                              {ord.orderNumber}
-                            </span>
-                            <span className="text-[10.5px] px-2 py-0.5 rounded-full bg-[#f3dde0] text-[#5e0b29] font-bold uppercase">
-                              {ord.fulfillmentStatus}
-                            </span>
-                          </div>
-                          <span className="text-[12px] text-[#544245]">
-                            {ord.customerName} • {ord.deliveryAddress.district}
-                          </span>
-                        </div>
-                        <span className="font-bold text-[14px] text-[#221a19]">
-                          LKR {ord.total.toLocaleString()}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Top Selling Products */}
-                <div className="p-6 rounded-2xl bg-white border border-[#dac0c4]/40 shadow-xs">
-                  <h3 className="font-editorial text-[18px] text-[#5e0b29] font-semibold mb-4">
-                    Top Trending Gifts
-                  </h3>
-                  <div className="space-y-3">
-                    {topProducts.length === 0 ? (
-                      <p className="text-[13px] text-[#877275]">
-                        No sales recorded yet. All products in stock.
-                      </p>
-                    ) : (
-                      topProducts.map((p, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-3 rounded-xl bg-[#fff8f7] border border-[#dac0c4]/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            <img
-                              alt={p.name}
-                              src={p.image}
-                              className="w-10 h-10 rounded-lg object-cover bg-[#fbeae8]"
-                            />
-                            <div>
-                              <span className="font-bold text-[13px] text-[#5e0b29] block">
-                                {p.name}
-                              </span>
-                              <span className="text-[11.5px] text-[#877275]">
-                                {p.count} units sold
-                              </span>
-                            </div>
-                          </div>
-                          <span className="font-bold text-[13px] text-[#221a19]">
-                            LKR {p.revenue.toLocaleString()}
-                          </span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* 5. BRAND SETTINGS & THEME CONFIGURATION */}
+          {activeSection === 'brand-settings' && (
+            <AdminBrandSettings onShowToast={onShowToast} />
           )}
 
           {/* SECTION 2: PRODUCTS (FULL CRUD) */}
@@ -1270,7 +1215,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   type="url"
                   name="image"
                   required
-                  defaultValue={editingProduct?.image || BRAND_LOGO}
+                  defaultValue={editingProduct?.image || '/logo.png'}
                   className="w-full px-3 py-2 rounded-lg bg-white border border-[#dac0c4]/60 focus:outline-none"
                 />
               </div>

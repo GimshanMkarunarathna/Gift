@@ -4,53 +4,53 @@
   --font-serif: "Playfair Display", Georgia, serif;
   --font-sans: "Manrope", sans-serif;
 
-  --color-surface: #fff8f7;
-  --color-surface-dim: #e7d6d4;
-  --color-surface-bright: #fff8f7;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #fff0ef;
-  --color-surface-container: #fbeae8;
-  --color-surface-container-high: #f5e4e2;
-  --color-surface-container-highest: #f0dfdd;
+  --color-surface: #FAF9F6;
+  --color-surface-dim: #E8EDE4;
+  --color-surface-bright: #FFFFFF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F6F8F3;
+  --color-surface-container: #F0F4EC;
+  --color-surface-container-high: #E8EDE4;
+  --color-surface-container-highest: #DFE5DA;
   
-  --color-on-surface: #221a19;
-  --color-on-surface-variant: #544245;
-  --color-inverse-surface: #382e2d;
-  --color-inverse-on-surface: #feedeb;
+  --color-on-surface: #2B2D2F;
+  --color-on-surface-variant: #4F5D4D;
+  --color-inverse-surface: #202422;
+  --color-inverse-on-surface: #FAF9F6;
   
-  --color-outline: #877275;
-  --color-outline-variant: #dac0c4;
-  --color-surface-tint: #9d3e58;
+  --color-outline: #72816F;
+  --color-outline-variant: #D3DDCF;
+  --color-surface-tint: #4CAF50;
   
-  --color-primary: #5e0b29;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #7c243f;
-  --color-on-primary-container: #ff92ab;
-  --color-inverse-primary: #ffb1c1;
+  --color-primary: #2D6A4F;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #4CAF50;
+  --color-on-primary-container: #EAF5EC;
+  --color-inverse-primary: #52B788;
   
-  --color-secondary: #904858;
-  --color-on-secondary: #ffffff;
-  --color-secondary-container: #ffa5b7;
-  --color-on-secondary-container: #7a3747;
+  --color-secondary: #40916C;
+  --color-on-secondary: #FFFFFF;
+  --color-secondary-container: #D8EEDF;
+  --color-on-secondary-container: #1B4332;
   
-  --color-tertiary: #382b2e;
-  --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #504144;
-  --color-on-tertiary-container: #c2aeb0;
+  --color-tertiary: #E9C46A;
+  --color-on-tertiary: #2B2D2F;
+  --color-tertiary-container: #FDF4DC;
+  --color-on-tertiary-container: #6F5212;
   
-  --color-primary-fixed: #ffd9df;
-  --color-primary-fixed-dim: #ffb1c1;
-  --color-secondary-fixed: #ffd9df;
-  --color-secondary-fixed-dim: #ffb1c0;
-  --color-tertiary-fixed: #f3dde0;
-  --color-tertiary-fixed-dim: #d6c1c4;
+  --color-primary-fixed: #EAF5EC;
+  --color-primary-fixed-dim: #C5E5CB;
+  --color-secondary-fixed: #EAF5EC;
+  --color-secondary-fixed-dim: #C5E5CB;
+  --color-tertiary-fixed: #FDF4DC;
+  --color-tertiary-fixed-dim: #F6DF9F;
 }
 
 @layer base {
   body {
     font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background-color: #fff8f7;
-    color: #221a19;
+    background-color: #FAF9F6;
+    color: #2B2D2F;
   }
 }
 

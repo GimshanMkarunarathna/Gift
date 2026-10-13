@@ -19,90 +19,89 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="lg:col-span-5 flex flex-col justify-center">
           {/* Eyebrow */}
           <div className="flex items-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-[#904858]" />
-            <span className="text-[11px] font-bold tracking-[0.2em] text-[#5e0b29] uppercase">
-              The Art of Giving
+            <span className="w-2 h-2 rounded-full bg-[#4CAF50]" />
+            <span className="text-[11px] font-bold tracking-[0.2em] text-[#2D6A4F] uppercase">
+              GLÜCK GIFY — Cute Gify and Accessories
             </span>
           </div>
 
           {/* Headline */}
-          <h1 className="font-editorial text-[38px] sm:text-[44px] lg:text-[48px] leading-[1.15] text-[#5e0b29] mb-4 font-normal">
-            Make it personal. <br />
-            Make it{' '}
-            <span className="italic font-normal text-[#904858]">
-              unforgettable.
+          <h1 className="font-editorial text-[38px] sm:text-[44px] lg:text-[48px] leading-[1.15] text-[#2B2D2F] mb-4 font-normal">
+            Where Cute Gify <br />
+            Meets{' '}
+            <span className="italic font-normal text-[#2D6A4F]">
+              Botanical Grace.
             </span>
           </h1>
 
           {/* Supporting Editorial Text */}
-          <p className="text-[16px] sm:text-[18px] text-[#544245] mb-8 leading-relaxed font-normal">
-            Thoughtfully chosen gifts for the people who matter most. Discover something
-            meaningful for every moment, beautifully wrapped and delivered across Sri Lanka.
+          <p className="text-[16px] sm:text-[17px] text-[#4F5D4D] mb-8 leading-relaxed font-normal">
+            Discover charming animated gif loops, curated botanical accessories, and personalized keepsakes inspired by our signature blooming lily. Beautifully packed with love across Sri Lanka.
           </p>
 
           {/* CTA Action Cluster */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-8">
             <button
               onClick={onShopGifts}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#7c243f] text-white text-[14px] font-semibold shadow-xs hover:bg-[#5e0b29] transition-all duration-300 group cursor-pointer"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#2B2D2F] text-white text-[14px] font-semibold shadow-xs hover:bg-[#1F2421] transition-all duration-300 group cursor-pointer"
             >
-              <span>Shop Gifts</span>
-              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">
+              <span>Explore Boutique</span>
+              <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform text-[#4CAF50]">
                 arrow_forward
               </span>
             </button>
 
             <button
               onClick={onDiscoverGift}
-              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#fbeae8] text-[#5e0b29] text-[14px] font-semibold hover:bg-[#f3dde0] transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-[#EAF5EC] text-[#2D6A4F] text-[14px] font-semibold hover:bg-[#D9EEDB] transition-colors cursor-pointer"
             >
-              <span>Discover Your Gift</span>
-              <span className="material-symbols-outlined text-[18px] text-[#904858]">
+              <span>Find Cute Gify</span>
+              <span className="material-symbols-outlined text-[18px] text-[#4CAF50]">
                 auto_awesome
               </span>
             </button>
           </div>
 
           {/* 3 Compact Trust Micro-Indicators */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-[#dac0c4]/40">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-[#DDE5DA]">
             <div className="flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-[#5e0b29] text-[20px] shrink-0 mt-0.5">
-                palette
+              <span className="material-symbols-outlined text-[#4CAF50] text-[20px] shrink-0 mt-0.5">
+                local_florist
               </span>
               <div>
-                <p className="text-[13px] font-bold text-[#5e0b29] leading-tight">
-                  Thoughtfully Curated
+                <p className="text-[13px] font-bold text-[#2B2D2F] leading-tight">
+                  Handcrafted Lily Art
                 </p>
-                <p className="text-[12px] text-[#544245] leading-snug">
-                  Artisanal Ceylon craft
+                <p className="text-[12px] text-[#556353] leading-snug">
+                  Vector line-art icons
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-[#5e0b29] text-[20px] shrink-0 mt-0.5">
+              <span className="material-symbols-outlined text-[#4CAF50] text-[20px] shrink-0 mt-0.5">
                 redeem
               </span>
               <div>
-                <p className="text-[13px] font-bold text-[#5e0b29] leading-tight">
-                  Artisan Wrapped
+                <p className="text-[13px] font-bold text-[#2B2D2F] leading-tight">
+                  Cute Accessories
                 </p>
-                <p className="text-[12px] text-[#544245] leading-snug">
-                  Satin ribbon &amp; wax seal
+                <p className="text-[12px] text-[#556353] leading-snug">
+                  Pins, scarves &amp; journals
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-[#5e0b29] text-[20px] shrink-0 mt-0.5">
+              <span className="material-symbols-outlined text-[#4CAF50] text-[20px] shrink-0 mt-0.5">
                 local_shipping
               </span>
               <div>
-                <p className="text-[13px] font-bold text-[#5e0b29] leading-tight">
+                <p className="text-[13px] font-bold text-[#2B2D2F] leading-tight">
                   Islandwide Delivery
                 </p>
-                <p className="text-[12px] text-[#544245] leading-snug">
-                  Colombo same-day
+                <p className="text-[12px] text-[#556353] leading-snug">
+                  Fast, tracked shipping
                 </p>
               </div>
             </div>

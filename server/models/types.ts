@@ -190,3 +190,68 @@ export interface AuditLogDocument {
   ipAddress?: string;
   timestamp: string;
 }
+
+export interface GifyAssetDocument {
+  id: string;
+  title: string;
+  name: string;
+  animationPreset: 'bloom' | 'gentle-sway' | 'sparkle-pulse' | 'breeze' | 'bounce';
+  category: 'Botanical' | 'Kawaii' | 'Sparkles' | 'Whimsical' | 'Accessories';
+  previewEmoji: string;
+  svgIcon: string;
+  tag: string;
+  color: string;
+  status: 'active' | 'draft' | 'archived';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CuteAccessoryDocument {
+  id: string;
+  title: string;
+  name: string;
+  sku: string;
+  price: number;
+  stock: number;
+  imageUrl: string;
+  description: string;
+  category: string;
+  badge?: string;
+  status: 'active' | 'draft' | 'archived';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CustomGifyRequestDocument {
+  id: string;
+  requestNumber: string;
+  title: string;
+  customerName: string;
+  customerEmail?: string;
+  motif: string;
+  caption: string;
+  colorTheme: string;
+  animationSpeed: string;
+  stickers: string[];
+  requestType: 'custom_gify' | 'accessory_order';
+  status: 'pending' | 'processing' | 'completed' | 'shipped';
+  amount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BrandSettingsDocument {
+  brandName: string;
+  tagline: string;
+  logoUrl: string;
+  logoFallbackMode: 'auto' | 'image' | 'vector';
+  announcementText: string;
+  announcementActive: boolean;
+  loadingBloomSpeed: number; // in milliseconds (e.g., 2800)
+  pageTransitions: boolean;
+  primaryAccent: string; // #4CAF50
+  secondaryAccent: string; // #2B2D2F
+  highlightAccent: string; // #FAF9F6
+  goldAccent: string; // #E9C46A
+  updatedAt: string;
+}

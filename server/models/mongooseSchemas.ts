@@ -58,7 +58,7 @@ export const CategorySchema = new Schema(
     image: { type: String, required: true },
     imageAlt: { type: String },
     badge: { type: String },
-    badgeType: { type: String, enum: ['primary', 'secondary', 'tertiary'] },
+    badgeType: { type: String, enum: ['primary', 'secondary', 'tertiary', 'accent'] },
     displayOrder: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BRAND_LOGO } from '../data/mockData';
+import { GluckGifyLogo } from './brand/GluckGifyLogo';
 
 interface FooterProps {
   onSelectCategory: (category: string) => void;
@@ -20,25 +20,26 @@ export const Footer: React.FC<FooterProps> = ({
 }) => {
   return (
     <footer
-      className="w-full bg-[#fff0ef] border-t border-[#dac0c4]/40 mt-16 shadow-[0_-1px_6px_rgba(41,32,31,0.02)]"
+      className="w-full bg-[#F3F7F2] border-t border-[#DDE5DA] mt-16 shadow-[0_-1px_6px_rgba(41,45,43,0.02)]"
       id="footer-section"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-14 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 pb-12 border-b border-[#dac0c4]/30">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 pb-12 border-b border-[#DDE5DA]">
           {/* Brand Info */}
           <div className="lg:col-span-1 flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
-              <img
-                alt="Giftora Brand Logo"
-                className="h-7 w-auto object-contain"
-                src={BRAND_LOGO}
-              />
-              <span className="font-editorial text-[20px] text-[#5e0b29] font-bold tracking-tight">
-                GIFTORA
-              </span>
+              <GluckGifyLogo size="sm" showText={false} glow={true} />
+              <div className="flex flex-col">
+                <span className="text-[18px] text-[#2B2D2F] font-bold tracking-tight leading-none">
+                  GLÜCK GIFY
+                </span>
+                <span className="text-[9px] text-[#4CAF50] font-bold tracking-widest uppercase mt-1">
+                  Cute Gify and Accessories
+                </span>
+              </div>
             </div>
-            <p className="text-[13px] text-[#544245] leading-relaxed">
-              Curating moments of pure joy and sentimental connection across Sri Lanka &amp; worldwide.
+            <p className="text-[13px] text-[#556353] leading-relaxed">
+              Curating moments of blooming joy, charming animated loops, and handcrafted botanical accessories worldwide.
             </p>
 
             {/* Social Icons */}

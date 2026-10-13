@@ -284,4 +284,104 @@ export const api = {
       return request<{ logs: any[] }>('/api/admin/audit-logs');
     },
   },
+
+  // System & Health
+  system: {
+    async getHealth() {
+      return request<{
+        status: string;
+        service: string;
+        database: string;
+        mongoConnected: boolean;
+        time: string;
+      }>('/api/health');
+    },
+  },
+
+  // GLÜCK GIFY Studio & Assets
+  studio: {
+    async getAssets(status?: string) {
+      const q = status ? `?status=${encodeURIComponent(status)}` : '';
+      return request<{ total: number; assets: any[] }>(`/api/admin/studio/assets${q}`);
+    },
+    async createAsset(data: any) {
+      return request<{ message: string; asset: any }>('/api/admin/studio/assets', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    async updateAsset(id: string, updates: any) {
+      return request<{ message: string; asset: any }>(`/api/admin/studio/assets/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+      });
+    },
+    async deleteAsset(id: string) {
+      return request<{ message: string }>(`/api/admin/studio/assets/${id}`, {
+        method: 'DELETE',
+      });
+    },
+
+    // Cute Accessories
+    async getAccessories(status?: string) {
+      const q = status ? `?status=${encodeURIComponent(status)}` : '';
+      return request<{ total: number; accessories: any[] }>(`/api/admin/studio/accessories${q}`);
+    },
+    async createAccessory(data: any) {
+      return request<{ message: string; accessory: any }>('/api/admin/studio/accessories', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    async updateAccessory(id: string, updates: any) {
+      return request<{ message: string; accessory: any }>(`/api/admin/studio/accessories/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+      });
+    },
+    async deleteAccessory(id: string) {
+      return request<{ message: string }>(`/api/admin/studio/accessories/${id}`, {
+        method: 'DELETE',
+      });
+    },
+  },
+
+  // Custom Maker & Order Requests
+  customRequests: {
+    async getAll(status?: string) {
+      const q = status ? `?status=${encodeURIComponent(status)}` : '';
+      return request<{ total: number; requests: any[] }>(`/api/admin/custom-requests${q}`);
+    },
+    async create(data: any) {
+      return request<{ message: string; request: any }>('/api/custom-requests', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+    async updateStatus(id: string, status: string) {
+      return request<{ message: string; request: any }>(`/api/admin/custom-requests/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+    },
+    async delete(id: string) {
+      return request<{ message: string }>(`/api/admin/custom-requests/${id}`, {
+        method: 'DELETE',
+      });
+    },
+  },
+
+  // Brand Settings & Theme Configuration
+  brandSettings: {
+    async get() {
+      return request<{ settings: any }>('/api/brand-settings');
+    },
+    async update(updates: any) {
+      return request<{ message: string; settings: any }>('/api/admin/brand-settings', {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+      });
+    },
+  },
 };
+

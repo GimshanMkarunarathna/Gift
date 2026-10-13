@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api, User } from '../../services/api';
+import { GluckGifyLogo } from '../brand/GluckGifyLogo';
 
 interface AdminLoginProps {
   onSuccess: (user: User) => void;
@@ -37,27 +38,27 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#382e2d]/70 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#fff8f7] max-w-md w-full rounded-2xl p-6 sm:p-8 shadow-2xl border border-[#dac0c4]/60 relative">
+    <div className="fixed inset-0 z-50 bg-[#2B2D2F]/70 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="bg-[#FAF9F6] max-w-md w-full rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#E2E8D8] relative animate-scaleUp">
         <button
           onClick={onCancel}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#fbeae8] text-[#544245] flex items-center justify-center hover:bg-[#f0dfdd]"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#EAEFE5] text-[#4A5568] flex items-center justify-center hover:bg-[#DCE5D8] transition-colors cursor-pointer"
         >
           <span className="material-symbols-outlined text-[18px]">close</span>
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-full bg-[#5e0b29] text-white flex items-center justify-center mx-auto mb-3 shadow-md">
-            <span className="material-symbols-outlined text-[24px]">shield_person</span>
+          <div className="mx-auto mb-3 flex justify-center">
+            <GluckGifyLogo size="md" glow={true} />
           </div>
-          <span className="text-[11px] font-bold text-[#904858] uppercase tracking-[0.2em] block">
-            Security Gateway
+          <span className="text-[11px] font-bold text-[#4CAF50] uppercase tracking-[0.2em] block">
+            Command Center
           </span>
-          <h2 className="font-editorial text-[24px] text-[#5e0b29] font-semibold mt-1">
-            GIFTORA Atelier Portal
+          <h2 className="font-serif text-[22px] text-[#2B2D2F] font-bold mt-1">
+            GLÜCK GIFY Atelier Portal
           </h2>
-          <p className="text-[13px] text-[#544245] mt-1">
-            Sign in to access catalog, inventory, and order fulfillment.
+          <p className="text-[12.5px] text-[#7A8276] mt-1">
+            Sign in to manage Gify assets, accessories, custom maker requests, and inventory.
           </p>
         </div>
 
@@ -101,14 +102,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
           <div className="p-3 rounded-lg bg-[#fff0ef] border border-[#dac0c4]/40 flex items-center justify-between text-[11.5px]">
             <div>
               <span className="font-bold text-[#5e0b29] block">Verified Admin Credentials:</span>
-              <span className="text-[#544245]">admin@giftora.lk / GiftoraAdmin2027!</span>
+              <span className="text-[#4A5568]">admin@giftora.lk / GiftoraAdmin2027!</span>
             </div>
             <button
               type="button"
               onClick={fillDemoAdmin}
-              className="px-2.5 py-1 rounded bg-white text-[#5e0b29] font-bold border border-[#dac0c4]/60 hover:bg-[#fbeae8]"
+              className="px-2.5 py-1 rounded-lg bg-white text-[#2D6A4F] font-bold border border-[#E2E8D8] hover:bg-[#EAF5EC] cursor-pointer shadow-2xs"
             >
-              Fill
+              Fill Demo
             </button>
           </div>
 
@@ -116,14 +117,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 py-2.5 rounded-full text-[13.5px] font-semibold text-[#544245] hover:bg-[#fbeae8] transition-colors"
+              className="flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-[#4A5568] hover:bg-[#EAEFE5] transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-2.5 rounded-full bg-[#7c243f] text-white text-[13.5px] font-semibold hover:bg-[#5e0b29] shadow-md transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
+              className="flex-1 py-2.5 rounded-xl bg-[#4CAF50] text-white text-[13px] font-semibold hover:bg-[#3d9140] shadow-sm transition-all disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? (
                 <span>Verifying...</span>

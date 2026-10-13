@@ -11,6 +11,10 @@ import {
   InventoryMovementDocument,
   HomepageContentDocument,
   AuditLogDocument,
+  GifyAssetDocument,
+  CuteAccessoryDocument,
+  CustomGifyRequestDocument,
+  BrandSettingsDocument,
 } from '../models/types';
 import {
   BRAND_LOGO,
@@ -30,6 +34,10 @@ interface DatabaseState {
   inventoryMovements: InventoryMovementDocument[];
   homepageContent: HomepageContentDocument;
   auditLogs: AuditLogDocument[];
+  gifyAssets: GifyAssetDocument[];
+  cuteAccessories: CuteAccessoryDocument[];
+  customRequests: CustomGifyRequestDocument[];
+  brandSettings: BrandSettingsDocument;
 }
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
@@ -54,6 +62,26 @@ class StorageService {
       try {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         this.state = JSON.parse(raw);
+        let needSave = false;
+        if (!this.state!.gifyAssets || !Array.isArray(this.state!.gifyAssets)) {
+          this.state!.gifyAssets = this.createInitialGifyAssets();
+          needSave = true;
+        }
+        if (!this.state!.cuteAccessories || !Array.isArray(this.state!.cuteAccessories)) {
+          this.state!.cuteAccessories = this.createInitialCuteAccessories();
+          needSave = true;
+        }
+        if (!this.state!.customRequests || !Array.isArray(this.state!.customRequests)) {
+          this.state!.customRequests = this.createInitialCustomRequests();
+          needSave = true;
+        }
+        if (!this.state!.brandSettings) {
+          this.state!.brandSettings = this.createInitialBrandSettings();
+          needSave = true;
+        }
+        if (needSave) {
+          this.persist();
+        }
         return;
       } catch (err) {
         console.error('Failed to parse existing giftora-db.json, creating initial seed', err);
@@ -289,6 +317,10 @@ class StorageService {
       inventoryMovements: [],
       homepageContent,
       auditLogs,
+      gifyAssets: this.createInitialGifyAssets(),
+      cuteAccessories: this.createInitialCuteAccessories(),
+      customRequests: this.createInitialCustomRequests(),
+      brandSettings: this.createInitialBrandSettings(),
     };
   }
 
@@ -674,6 +706,450 @@ class StorageService {
     this.ensureInitialized();
     return this.state!.auditLogs;
   }
+
+  // --- Seed Helpers ---
+  private createInitialGifyAssets(): GifyAssetDocument[] {
+    const now = new Date().toISOString();
+    return [
+      {
+        id: 'asset-lily',
+        title: 'Unfurling Lily',
+        name: 'Unfurling Lily',
+        animationPreset: 'bloom',
+        category: 'Botanical',
+        previewEmoji: '🌸',
+        svgIcon: 'local_florist',
+        tag: 'Signature',
+        color: '#4CAF50',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'asset-bunny',
+        title: 'Dancing Meadow Bunny',
+        name: 'Dancing Meadow Bunny',
+        animationPreset: 'bounce',
+        category: 'Kawaii',
+        previewEmoji: '🐰',
+        svgIcon: 'cruelty_free',
+        tag: 'Cute',
+        color: '#FFA5B7',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'asset-butterfly',
+        title: 'Fluttering Silk Butterfly',
+        name: 'Fluttering Silk Butterfly',
+        animationPreset: 'breeze',
+        category: 'Whimsical',
+        previewEmoji: '🦋',
+        svgIcon: 'flutter',
+        tag: 'Airy',
+        color: '#64B5F6',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'asset-kitten',
+        title: 'Curled Sleeping Kitten',
+        name: 'Curled Sleeping Kitten',
+        animationPreset: 'gentle-sway',
+        category: 'Kawaii',
+        previewEmoji: '🐱',
+        svgIcon: 'pets',
+        tag: 'Sweet',
+        color: '#FFB74D',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'asset-stars',
+        title: 'Four-Point Twinkle Stars',
+        name: 'Four-Point Twinkle Stars',
+        animationPreset: 'sparkle-pulse',
+        category: 'Sparkles',
+        previewEmoji: '✨',
+        svgIcon: 'auto_awesome',
+        tag: 'Glow',
+        color: '#E9C46A',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'asset-tea',
+        title: 'Floral Porcelain Teacup',
+        name: 'Floral Porcelain Teacup',
+        animationPreset: 'gentle-sway',
+        category: 'Whimsical',
+        previewEmoji: '☕',
+        svgIcon: 'coffee',
+        tag: 'Cozy',
+        color: '#81C784',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'asset-clover',
+        title: 'Glück Lucky 4-Leaf Clover',
+        name: 'Glück Lucky 4-Leaf Clover',
+        animationPreset: 'bloom',
+        category: 'Botanical',
+        previewEmoji: '🍀',
+        svgIcon: 'eco',
+        tag: 'Lucky',
+        color: '#2D6A4F',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'asset-cloud',
+        title: 'Pastel Rainbow Cloud',
+        name: 'Pastel Rainbow Cloud',
+        animationPreset: 'breeze',
+        category: 'Kawaii',
+        previewEmoji: '☁️',
+        svgIcon: 'cloud',
+        tag: 'Dreamy',
+        color: '#BA68C8',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+  }
+
+  private createInitialCuteAccessories(): CuteAccessoryDocument[] {
+    const now = new Date().toISOString();
+    return [
+      {
+        id: 'acc-pin',
+        title: 'Lily Blossom Enamel Pin',
+        name: 'Lily Blossom Enamel Pin',
+        sku: 'GK-PIN-01',
+        price: 1850,
+        stock: 42,
+        imageUrl: 'https://images.unsplash.com/photo-1611591475878-83141dfd16a5?auto=format&fit=crop&w=500&q=80',
+        description: 'Hand-dipped soft white enamel lily with polished gold border and butterfly clasp.',
+        category: 'Jewelry & Pins',
+        badge: 'Bestseller',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'acc-scarf',
+        title: 'Botanical Lily Silk Scarf',
+        name: 'Botanical Lily Silk Scarf',
+        sku: 'GK-SCF-02',
+        price: 6400,
+        stock: 14,
+        imageUrl: 'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?auto=format&fit=crop&w=500&q=80',
+        description: '100% pure mulberry silk scarf with hand-rolled hems and illustrated botanical lilies.',
+        category: 'Wearables',
+        badge: 'Limited',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'acc-notebook',
+        title: 'Embossed Lily Hardcover Journal',
+        name: 'Embossed Lily Hardcover Journal',
+        sku: 'GK-NB-03',
+        price: 2750,
+        stock: 36,
+        imageUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=500&q=80',
+        description: '160gsm bamboo paper with gold-stamped lily emblem, ribbon bookmark, and elastic closure.',
+        category: 'Stationery',
+        badge: 'Artisan',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'acc-pouch',
+        title: 'Botanical Linen Atelier Pouch',
+        name: 'Botanical Linen Atelier Pouch',
+        sku: 'GK-PCH-04',
+        price: 2200,
+        stock: 25,
+        imageUrl: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=500&q=80',
+        description: 'Hand-woven natural organic flax linen pouch featuring floral screen-printed motif and brass zipper.',
+        category: 'Organizers',
+        badge: 'Eco-Friendly',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: 'acc-mug',
+        title: 'Glück Lily Ceramic Teacup',
+        name: 'Glück Lily Ceramic Teacup',
+        sku: 'GK-MUG-05',
+        price: 2950,
+        stock: 18,
+        imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80',
+        description: 'Double-glazed porcelain cup hand-thrown with lily petal contours and 24K gold rim highlight.',
+        category: 'Drinkware',
+        badge: 'Artisan',
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      },
+    ];
+  }
+
+  private createInitialCustomRequests(): CustomGifyRequestDocument[] {
+    const now = new Date().toISOString();
+    return [
+      {
+        id: 'req-201',
+        requestNumber: 'GG-REQ-201',
+        title: 'Whimsical Lily Bloom with Twinkles',
+        customerName: 'Aanya Senanayake',
+        customerEmail: 'aanya.s@outlook.com',
+        motif: 'lily',
+        caption: 'Wishing you sheer peace and joy on your graduation day ✨',
+        colorTheme: 'lily-green',
+        animationSpeed: 'gentle',
+        stickers: ['sparkles', 'lily'],
+        requestType: 'custom_gify',
+        status: 'pending',
+        amount: 2500,
+        createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+        updatedAt: now,
+      },
+      {
+        id: 'req-202',
+        requestNumber: 'GG-REQ-202',
+        title: 'Bunny Meadow Birthday Keepsake',
+        customerName: 'Kasun Wickramasinghe',
+        customerEmail: 'kasun.w@gmail.com',
+        motif: 'bunny',
+        caption: 'Happy Sweet 16, keep hopping high! 🐰🌸',
+        colorTheme: 'rose-blush',
+        animationSpeed: 'bloom',
+        stickers: ['bunny', 'sparkles'],
+        requestType: 'custom_gify',
+        status: 'processing',
+        amount: 3200,
+        createdAt: new Date(Date.now() - 3600000 * 12).toISOString(),
+        updatedAt: now,
+      },
+      {
+        id: 'req-203',
+        requestNumber: 'GG-REQ-203',
+        title: 'Custom Lily Pin & Scarf Duo Gift Set',
+        customerName: 'Nadia Rahim',
+        customerEmail: 'nadia.r@yahoo.com',
+        motif: 'lily',
+        caption: 'For Dearest Mother with unending love.',
+        colorTheme: 'lily-green',
+        animationSpeed: 'breeze',
+        stickers: ['sparkles'],
+        requestType: 'accessory_order',
+        status: 'completed',
+        amount: 8250,
+        createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+        updatedAt: now,
+      },
+    ];
+  }
+
+  private createInitialBrandSettings(): BrandSettingsDocument {
+    return {
+      brandName: 'GLÜCK GIFY',
+      tagline: 'CUTE GIFY AND ACCESSORIES',
+      logoUrl: '/logo.png',
+      logoFallbackMode: 'auto',
+      announcementText: 'Welcome to GLÜCK GIFY: Cute Gify & Botanical Accessories ✨ Free Keepsake Wrapping',
+      announcementActive: true,
+      loadingBloomSpeed: 2800,
+      pageTransitions: true,
+      primaryAccent: '#4CAF50',
+      secondaryAccent: '#2B2D2F',
+      highlightAccent: '#FAF9F6',
+      goldAccent: '#E9C46A',
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  // --- Gify Assets Management ---
+  getGifyAssets(status?: string): GifyAssetDocument[] {
+    this.ensureInitialized();
+    if (!status || status === 'all') return this.state!.gifyAssets;
+    return this.state!.gifyAssets.filter((a) => a.status === status);
+  }
+
+  getGifyAssetById(id: string): GifyAssetDocument | undefined {
+    this.ensureInitialized();
+    return this.state!.gifyAssets.find((a) => a.id === id);
+  }
+
+  createGifyAsset(data: Omit<GifyAssetDocument, 'id' | 'createdAt' | 'updatedAt'>): GifyAssetDocument {
+    this.ensureInitialized();
+    const now = new Date().toISOString();
+    const newAsset: GifyAssetDocument = {
+      ...data,
+      id: `asset-${Date.now()}`,
+      title: data.title || data.name,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.state!.gifyAssets.unshift(newAsset);
+    this.persist();
+    return newAsset;
+  }
+
+  updateGifyAsset(id: string, updates: Partial<GifyAssetDocument>): GifyAssetDocument | null {
+    this.ensureInitialized();
+    const idx = this.state!.gifyAssets.findIndex((a) => a.id === id);
+    if (idx === -1) return null;
+    this.state!.gifyAssets[idx] = {
+      ...this.state!.gifyAssets[idx],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    this.persist();
+    return this.state!.gifyAssets[idx];
+  }
+
+  deleteGifyAsset(id: string): boolean {
+    this.ensureInitialized();
+    const idx = this.state!.gifyAssets.findIndex((a) => a.id === id);
+    if (idx === -1) return false;
+    this.state!.gifyAssets.splice(idx, 1);
+    this.persist();
+    return true;
+  }
+
+  // --- Cute Accessories Management ---
+  getCuteAccessories(status?: string): CuteAccessoryDocument[] {
+    this.ensureInitialized();
+    if (!status || status === 'all') return this.state!.cuteAccessories;
+    return this.state!.cuteAccessories.filter((a) => a.status === status);
+  }
+
+  getCuteAccessoryById(id: string): CuteAccessoryDocument | undefined {
+    this.ensureInitialized();
+    return this.state!.cuteAccessories.find((a) => a.id === id);
+  }
+
+  createCuteAccessory(data: Omit<CuteAccessoryDocument, 'id' | 'createdAt' | 'updatedAt'>): CuteAccessoryDocument {
+    this.ensureInitialized();
+    const now = new Date().toISOString();
+    const newAcc: CuteAccessoryDocument = {
+      ...data,
+      id: `acc-${Date.now()}`,
+      title: data.title || data.name,
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.state!.cuteAccessories.unshift(newAcc);
+    this.persist();
+    return newAcc;
+  }
+
+  updateCuteAccessory(id: string, updates: Partial<CuteAccessoryDocument>): CuteAccessoryDocument | null {
+    this.ensureInitialized();
+    const idx = this.state!.cuteAccessories.findIndex((a) => a.id === id);
+    if (idx === -1) return null;
+    this.state!.cuteAccessories[idx] = {
+      ...this.state!.cuteAccessories[idx],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    this.persist();
+    return this.state!.cuteAccessories[idx];
+  }
+
+  deleteCuteAccessory(id: string): boolean {
+    this.ensureInitialized();
+    const idx = this.state!.cuteAccessories.findIndex((a) => a.id === id);
+    if (idx === -1) return false;
+    this.state!.cuteAccessories.splice(idx, 1);
+    this.persist();
+    return true;
+  }
+
+  // --- Order & Custom Maker Requests ---
+  getCustomRequests(status?: string): CustomGifyRequestDocument[] {
+    this.ensureInitialized();
+    if (!status || status === 'all') return this.state!.customRequests;
+    return this.state!.customRequests.filter((r) => r.status === status);
+  }
+
+  getCustomRequestById(id: string): CustomGifyRequestDocument | undefined {
+    this.ensureInitialized();
+    return this.state!.customRequests.find((r) => r.id === id);
+  }
+
+  createCustomRequest(
+    data: Omit<CustomGifyRequestDocument, 'id' | 'requestNumber' | 'createdAt' | 'updatedAt'>
+  ): CustomGifyRequestDocument {
+    this.ensureInitialized();
+    const now = new Date().toISOString();
+    const num = Math.floor(100 + Math.random() * 900);
+    const newReq: CustomGifyRequestDocument = {
+      ...data,
+      id: `req-${Date.now()}`,
+      requestNumber: `GG-REQ-${num}`,
+      status: data.status || 'pending',
+      createdAt: now,
+      updatedAt: now,
+    };
+    this.state!.customRequests.unshift(newReq);
+    this.persist();
+    return newReq;
+  }
+
+  updateCustomRequestStatus(
+    id: string,
+    status: CustomGifyRequestDocument['status']
+  ): CustomGifyRequestDocument | null {
+    this.ensureInitialized();
+    const idx = this.state!.customRequests.findIndex((r) => r.id === id);
+    if (idx === -1) return null;
+    this.state!.customRequests[idx].status = status;
+    this.state!.customRequests[idx].updatedAt = new Date().toISOString();
+    this.persist();
+    return this.state!.customRequests[idx];
+  }
+
+  deleteCustomRequest(id: string): boolean {
+    this.ensureInitialized();
+    const idx = this.state!.customRequests.findIndex((r) => r.id === id);
+    if (idx === -1) return false;
+    this.state!.customRequests.splice(idx, 1);
+    this.persist();
+    return true;
+  }
+
+  // --- Brand Settings & Theme Configuration ---
+  getBrandSettings(): BrandSettingsDocument {
+    this.ensureInitialized();
+    return this.state!.brandSettings;
+  }
+
+  updateBrandSettings(updates: Partial<BrandSettingsDocument>): BrandSettingsDocument {
+    this.ensureInitialized();
+    this.state!.brandSettings = {
+      ...this.state!.brandSettings,
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+    this.persist();
+    return this.state!.brandSettings;
+  }
 }
 
 export const storage = new StorageService();
+

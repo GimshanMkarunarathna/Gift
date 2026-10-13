@@ -16,6 +16,8 @@ import { couponRouter } from './server/routes/couponRoutes';
 import { dashboardRouter } from './server/routes/dashboardRoutes';
 import { homepageRouter } from './server/routes/homepageRoutes';
 import { auditRouter } from './server/routes/auditRoutes';
+import { studioRouter, customRequestRouter, brandSettingsRouter } from './server/routes/studioRoutes';
+import { connectToDatabase, isConnectedToMongoDB } from './server/config/database';
 
 dotenv.config();
 
@@ -48,12 +50,23 @@ async function startServer() {
   app.use('/api/storefront/homepage', homepageRouter);
   app.use('/api/admin/storefront/homepage', homepageRouter);
   app.use('/api/admin/audit-logs', auditRouter);
+  app.use('/api/studio', studioRouter);
+  app.use('/api/admin/studio', studioRouter);
+  app.use('/api/custom-requests', customRequestRouter);
+  app.use('/api/admin/custom-requests', customRequestRouter);
+  app.use('/api/brand-settings', brandSettingsRouter);
+  app.use('/api/admin/brand-settings', brandSettingsRouter);
+
+  // Connect to MongoDB Atlas (with graceful fallback to atomic persistent store)
+  await connectToDatabase();
 
   // Healthcheck endpoint
   app.get('/api/health', (req, res) => {
     res.json({
       status: 'ok',
       service: 'Giftora Luxury Gifting API',
+      database: isConnectedToMongoDB() ? 'MongoDB Atlas (Connected)' : 'Local Atomic Persistence Engine (Active)',
+      mongoConnected: isConnectedToMongoDB(),
       time: new Date().toISOString(),
     });
   });
